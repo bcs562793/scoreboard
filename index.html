@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSS - Broadcast Solutions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* --- MODERN RESET & TEMEL AYARLAR --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; transition: all 0.3s ease; }
+        
+        body {
+            background-color: #050505;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(41, 128, 185, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(230, 126, 34, 0.1) 0%, transparent 40%);
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* --- DİL SEÇİM BUTONLARI --- */
+        .lang-switch {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            display: flex;
+            gap: 15px;
+            z-index: 10;
+        }
+        .lang-btn {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+        .lang-btn:hover { color: #fff; }
+        .lang-btn.active { color: #e67e22; border-bottom: 2px solid #e67e22; padding-bottom: 2px; }
+
+        /* --- ANA KART TASARIMI (GLASSMORPHISM) --- */
+        .container {
+            position: relative;
+            width: 90%;
+            max-width: 500px;
+            padding: 50px 40px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px); /* Buzlu cam efekti */
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        /* --- LOGO VE BAŞLIK --- */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: rgba(46, 204, 113, 0.1);
+            border: 1px solid rgba(46, 204, 113, 0.2);
+            border-radius: 20px;
+            font-size: 11px;
+            color: #2ecc71;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin-bottom: 25px;
+        }
+        .pulse {
+            width: 6px; height: 6px; background-color: #2ecc71; border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7);
+            animation: pulse-green 2s infinite;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            background: linear-gradient(to right, #fff, #aaa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        p {
+            color: #888;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+
+        /* --- İLETİŞİM KUTUSU --- */
+        .contact-wrapper {
+            margin-top: 20px;
+        }
+        .contact-label {
+            display: block;
+            font-size: 12px;
+            color: #555;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+        }
+        .email-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+            color: white;
+            text-decoration: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            box-shadow: 0 10px 20px -10px rgba(230, 126, 34, 0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .email-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px -10px rgba(230, 126, 34, 0.7);
+        }
+
+        /* --- ALT BİLGİ --- */
+        .footer {
+            margin-top: 40px;
+            font-size: 11px;
+            color: #444;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 20px;
+        }
+
+        /* --- ANİMASYON --- */
+        @keyframes pulse-green {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(46, 204, 113, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(46, 204, 113, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(46, 204, 113, 0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="lang-switch">
+        <button class="lang-btn" onclick="setLang('tr')" id="btn-tr">TR</button>
+        <button class="lang-btn active" onclick="setLang('en')" id="btn-en">EN</button>
+    </div>
+
+    <div class="container">
+        
+        <div class="status-badge">
+            <div class="pulse"></div>
+            <span id="txt-status">SYSTEM OPERATIONAL</span>
+        </div>
+
+        <h1 id="txt-title">Professional Broadcast Graphics</h1>
+        
+        <p id="txt-desc">
+            This web interface hosts the advanced live broadcast graphics engine developed by <strong>Online Scoreboard Solutions</strong>. Access is currently restricted to authorized production crews only.
+            <br><br>
+            Interested in using this system for your own league or tournament?
+        </p>
+
+        <div class="contact-wrapper">
+            <span class="contact-label" id="txt-label">LICENSE & CONTACT</span>
+            <a href="mailto:soldansaga@gmail.com" class="email-btn">
+                soldansaga@gmail.com
+            </a>
+        </div>
+
+        <div class="footer">
+            &copy; 2024 Online Scoreboard Systems. <span id="txt-rights">All Rights Reserved.</span>
+        </div>
+    </div>
+
+    <script>
+        // DİL VERİLERİ
+        const texts = {
+            tr: {
+                status: "SİSTEM AKTİF",
+                title: "Profesyonel Yayın Teknolojileri",
+                desc: "Bu web arayüzü, <strong>Online Scoreboard Solutions</strong> tarafından geliştirilen gelişmiş canlı yayın grafik motorunu barındırmaktadır. Erişim şu anda yalnızca yetkili reji ekipleri ile sınırlandırılmıştır.<br><br>Kendi liginiz veya turnuvanız için bu sistemi kullanmak ister misiniz?",
+                label: "LİSANS & İLETİŞİM",
+                rights: "Tüm Hakları Saklıdır."
+            },
+            en: {
+                status: "SYSTEM OPERATIONAL",
+                title: "Professional Broadcast Graphics",
+                desc: "This web interface hosts the advanced live broadcast graphics engine developed by <strong>Online Scoreboard Solutions</strong>. Access is currently restricted to authorized production crews only.<br><br>Interested in using this system for your own league or tournament?",
+                label: "LICENSE & CONTACT",
+                rights: "All Rights Reserved."
+            }
+        };
+
+        // DİL DEĞİŞTİRME FONKSİYONU
+        function setLang(lang) {
+            // Metinleri güncelle
+            document.getElementById('txt-status').innerText = texts[lang].status;
+            document.getElementById('txt-title').innerText = texts[lang].title;
+            document.getElementById('txt-desc').innerHTML = texts[lang].desc;
+            document.getElementById('txt-label').innerText = texts[lang].label;
+            document.getElementById('txt-rights').innerText = texts[lang].rights;
+
+            // Buton aktiflik durumunu güncelle
+            document.getElementById('btn-tr').classList.remove('active');
+            document.getElementById('btn-en').classList.remove('active');
+            document.getElementById('btn-' + lang).classList.add('active');
+        }
+    </script>
+</body>
+</html>
