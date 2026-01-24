@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Golden League Scoreboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;700;900&display=swap');
+
+        /* =========================================
+           GENEL AYARLAR
+           ========================================= */
+        body { 
+            background-color: transparent; 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Oswald', sans-serif; 
+            overflow: hidden; 
+        }
+        #status { display: none; }
+        ul { list-style: none; padding: 0; margin: 0; }
+        li { color: white; font-size: 14px; font-weight: 500; padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        li:last-child { border-bottom: none; }
+
+        /* =========================================
+           SKORBORD ANA YAPISI
+           ========================================= */
+        .wrapper { position: absolute; top: 30px; left: 20px; display: flex; align-items: center; gap: 0px; z-index: 100; }
+        .league-logo-outside { position: relative; z-index: 20; margin-right: -65px; transform: translateY(-35px); display: flex; align-items: center; }
+        .league-logo-outside img { height: 75px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); display: block; }
+
+        .main-container { position: relative; width: 700px; height: 120px; display: flex; justify-content: center; align-items: flex-start; padding-top: 10px; }
+
+        .team-bar { width: 280px; height: 50px; background: linear-gradient(to bottom, #ffffff 0%, #dcdcdc 100%); display: flex; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.4); position: relative; z-index: 10; }
+        .home-bar { border-radius: 8px 0 0 8px; padding-left: 25px; justify-content: flex-start; }
+        .away-bar { border-radius: 0 8px 8px 0; padding-right: 10px; justify-content: flex-end; }
+
+        .team-name-container { flex-grow: 1; display: flex; align-items: center; overflow: hidden; height: 100%; }
+        .home-bar .team-name-container { justify-content: flex-start; padding-right: 10px; }
+        .away-bar .team-name-container { justify-content: flex-end; padding-left: 10px; }
+        .team-name { font-size: 22px; font-weight: 700; color: #111; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 1px 1px 0px rgba(255,255,255,0.8); }
+
+        .logo-box img { height: 38px; width: 38px; object-fit: contain; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3)); display: block; background: rgba(255,255,255,0.1); }
+        .home-bar .logo-box { margin-right: 10px; }
+        .away-bar .logo-box { margin-left: 10px; }
+
+        .center-shield { position: absolute; top: 0px; left: 50%; transform: translateX(-50%); width: 120px; height: 80px; background: linear-gradient(180deg, #1c4b82 0%, #103055 100%); z-index: 15; border-radius: 0 0 35px 35px; border-top: 3px solid #1c4b82; box-shadow: 0 5px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; align-items: center; justify-content: center; padding-top: 10px; }
+        .wing-left, .wing-right { position: absolute; top: 15px; width: 12px; height: 45px; background: #f7ce3e; z-index: 14; }
+        .wing-left { left: -8px; border-radius: 10px 0 0 10px; transform: skewY(-20deg); }
+        .wing-right { right: -8px; border-radius: 0 10px 10px 0; transform: skewY(20deg); }
+
+        .score-text { font-size: 36px; font-weight: 700; color: white; line-height: 1; z-index: 16; }
+        .timer-text { font-size: 14px; color: #f7ce3e; font-weight: bold; margin-top: 2px; background: rgba(0,0,0,0.3); padding: 2px 8px; border-radius: 4px; }
+
+        .cards-group { position: absolute; top: 48px; display: flex; gap: 4px; z-index: 99; }
+        .home-cards-pos { left: 215px; justify-content: flex-end; }
+        .away-cards-pos { right: 215px; justify-content: flex-start; }
+        .card { width: 14px; height: 19px; border-radius: 2px; box-shadow: 1px 1px 2px black; border: 1px solid rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; }
+        .yellow { background: #ffeb3b; color: #333; }
+        .red { background: #d32f2f; color: white; }
+        .card-count { font-size: 11px; font-weight: 800; line-height: 1; }
+
+        /* =========================================
+           ANONS VE KADRO PANELLERİ
+           ========================================= */
+        .announcement-bar { position: absolute; top: 60px; left: 50%; transform: translateX(-50%); width: 500px; padding: 8px 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.95); color: white; border-radius: 0 0 15px 15px; border: 1px solid rgba(255,255,255,0.2); border-top: none; box-shadow: 0 10px 20px rgba(0,0,0,0.5); z-index: 1; opacity: 0; margin-top: -60px; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .announcement-bar.active { opacity: 1; margin-top: 0px; }
+        .anons-title { font-size: 20px; font-weight: 900; text-transform: uppercase; line-height: 1; margin-bottom: 2px; }
+        .anons-subtitle { font-size: 20px; font-weight: 500; text-transform: uppercase; color: rgba(255,255,255,0.9); }
+        .bg-goal { background: linear-gradient(to bottom, #11998e, #38ef7d) !important; text-shadow: 0 1px 3px rgba(0,0,0,0.3); border-color: #38ef7d !important;}
+        .bg-red { background: linear-gradient(to bottom, #cb2d3e, #ef473a) !important; border-color: #ef473a !important;}
+        .bg-yellow { background: linear-gradient(to bottom, #cac531, #f3f9a7) !important; color: #222 !important; border-color: #f3f9a7 !important;}
+        .bg-yellow .anons-subtitle { color: #111 !important; }
+
+        .lineup-overlay { position: absolute; top: 60px; left: 0; width: 100%; display: flex; justify-content: space-between; padding: 0 20px; box-sizing: border-box; z-index: 0; pointer-events: none; }
+        .lineup-card { width: 200px; background: rgba(0, 0, 0, 0.9); border: 1px solid rgba(255,215,0, 0.3); border-top: none; border-radius: 0 0 10px 10px; padding: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.5); opacity: 0; transform: translateY(-50px); transition: all 0.6s ease-out; }
+        .lineup-overlay.show .lineup-card { opacity: 1; transform: translateY(0); }
+        .home-lineup { margin-left: 20px; border-left: 3px solid #1c4b82; }
+        .away-lineup { margin-right: 20px; border-right: 3px solid #1c4b82; text-align: right; }
+        .lineup-header { color: #ffd700; font-size: 14px; font-weight: bold; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; margin-bottom: 5px; }
+
+        /* =========================================
+           TV MESAJ KUTUSU
+           ========================================= */
+        .broadcast-message {
+            position: absolute;
+            top: 15px; 
+            right: 10px; 
+            height: 40px; 
+            width: 0; 
+            opacity: 0;
+            background: linear-gradient(90deg, #103055 0%, #000000 100%);
+            border-right: 4px solid #f7ce3e;
+            border-radius: 0 4px 4px 0;
+            z-index: 5; 
+            transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            align-items: center;
+            overflow: hidden; 
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.4);
+        }
+        .broadcast-message.active { width: 320px; right: -260px; opacity: 1; }
+        .marquee-wrapper { width: 100%; height: 100%; position: relative; overflow: hidden; }
+        #tv-message-text {
+            position: absolute; top: 0; left: 0; line-height: 40px; white-space: nowrap;
+            color: #ffffff; font-size: 20px; font-weight: 600; letter-spacing: 1px;
+            text-transform: uppercase; text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            transform: translateX(330px); 
+            animation: scroll-smooth 30s linear infinite; 
+        }
+        @keyframes scroll-smooth { 0% { transform: translateX(330px); } 100% { transform: translateX(-100%); } }
+
+        /* --- GOL LOWER THIRD --- */
+
+        /* 1. ANA KUTU */
+        #goal-lower-third {
+            position: fixed; /* Sayfaya çivile */
+            bottom: 250px;   /* Alttan yükseklik */
+            left: 0;
+            width: 100vw;    /* Ekran genişliği */
+            height: 160px;   /* Yükseklik */
+            
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
+            z-index: 99999;  /* Her şeyin üstünde */
+            pointer-events: none; /* Tıklamayı engelle */
+            
+            /* Başlangıçta Görünmezlik */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s;
+        }
+
+        /* JS 'active' sınıfını ekleyince görünür olacak */
+        #goal-lower-third.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* 2. LOGO TASARIMI */
+        .logo-circle {
+            width: 130px;
+            height: 130px;
+            background: #fff;
+            border: 5px solid #FFD700; /* Altın Çerçeve */
+            border-radius: 50%;
+            
+            /* Gölge Efekti */
+            box-shadow: 0 0 20px rgba(0,0,0,0.5), 0 0 50px rgba(255, 215, 0, 0.8);
+            
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 20; /* Yazının önünde */
+            
+            transform: scale(0); /* Başlangıçta yok */
+        }
+
+        .logo-circle img {
+            width: 85px;
+            height: 85px;
+            object-fit: contain;
+        }
+
+        /* 3. YAZI TASARIMI */
+        .goal-text-wrapper {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%); /* Ortala */
+            
+            background: linear-gradient(90deg, #111 0%, #333 100%);
+            padding: 10px 40px 10px 80px; /* Soldan pay bırak */
+            border-radius: 0 50px 50px 0;
+            border-right: 5px solid #FFD700;
+            
+            z-index: 10; /* Logonun arkasında */
+            opacity: 0;
+            
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.5);
+        }
+
+        .goal-text {
+            font-family: 'Arial Black', sans-serif;
+            font-size: 45px;
+            color: #fff;
+            font-style: italic;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        /* --- ANİMASYON HAREKETLERİ --- */
+
+        /* Logo Hareketi: Büyü -> Sola Kay */
+        #goal-lower-third.active .logo-circle {
+            animation: popAndSlide 2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* Yazı Hareketi: Logo kayınca çık */
+        #goal-lower-third.active .goal-text-wrapper {
+            animation: textAppear 0.5s ease-out 0.8s forwards; /* 0.8sn gecikmeli */
+        }
+
+        @keyframes popAndSlide {
+            0% { transform: scale(0) translateX(0); }
+            30% { transform: scale(1.1) translateX(0); } /* Büyü */
+            40% { transform: scale(1) translateX(0); }   /* Normale dön */
+            100% { transform: scale(1) translateX(-180px); } /* Sola git */
+        }
+
+        @keyframes textAppear {
+            0% { opacity: 0; transform: translate(-80%, -50%); } /* Logonun arkasında */
+            100% { opacity: 1; transform: translate(-10%, -50%); } /* Ortaya çık */
+        }
+    </style>
+</head>
+<body>
+
+    <div id="status">Veri Bekleniyor...</div>
+
+    <div class="wrapper">
+        
+        <div class="league-logo-outside"><img id="leagueLogoImg" src="" alt=""></div>
+    
+        <div class="main-container">
+            <div class="team-bar home-bar">
+                <div class="logo-box"><img id="homeLogoImg" src="" alt=""></div>
+                <div class="team-name-container"><div class="team-name" id="home">EV SAHİBİ</div></div>
+            </div>
+            
+            <div class="center-shield">
+                <div class="wing-left"></div><div class="wing-right"></div>
+                <div class="score-text" id="score">0 - 0</div>
+                <div class="timer-text" id="timer">00:00</div>
+            </div>
+            
+            <div class="team-bar away-bar">
+                <div class="team-name-container"><div class="team-name" id="away">DEPLASMAN</div></div>
+                <div class="logo-box"><img id="awayLogoImg" src="" alt=""></div>
+            </div>
+
+            <div id="tv-message-box" class="broadcast-message">
+                <div class="marquee-wrapper">
+                    <div id="tv-message-text">CANLI YAYIN</div>
+                </div>
+            </div>
+            
+            <div id="home-cards" class="cards-group home-cards-pos"></div>
+            <div id="away-cards" class="cards-group away-cards-pos"></div>
+            <div id="anons-bar" class="announcement-bar">
+                <div id="anons-title" class="anons-title"></div>
+                <div id="anons-subtitle" class="anons-subtitle"></div>
+            </div>
+            <div id="lineup-container" class="lineup-overlay">
+                <div class="lineup-card home-lineup"><div class="lineup-header">İLK 7</div><ul id="home-player-list"></ul></div>
+                <div class="lineup-card away-lineup"><div class="lineup-header">İLK 7</div><ul id="away-player-list"></ul></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="goal-lower-third" class="hidden-start">
+        <div class="anim-content">
+            <div class="logo-circle">
+                <img id="goal-team-logo" src="" alt="Gol Logosu">
+            </div>
+            <div class="goal-text-wrapper">
+                <div class="goal-text">GOOOOOOLLLLL</div>
+            </div>
+        </div>
+    </div>
+  
+    <script>
+        // =========================================================
+        // GOLDEN LEAGUE - TAM SKORBORD SİSTEMİ
+        // =========================================================
+
+        const scriptURL = "https://script.google.com/macros/s/AKfycbyHWYovjy3jKp6Slj21t-3PfqX01u1vehireRC7MEjTsf6JHqbJRfD5r6iy73_ymgC9tQ/exec";
+
+        // DEĞİŞKENLER
+        let matchStartTime = null;
+        let addedMinutes = 0;
+        let prevHomeScore = null;
+        let prevAwayScore = null;
+        let animationTimeout; 
+        let animasyonKilidi = false;
+        let isFirstLoad = true; // Sayfa ilk açıldığında animasyonu engellemek için kilit
+
+        // --- ANA VERİ ÇEKME DÖNGÜSÜ ---
+        async function updateData() {
+            try {
+                const response = await fetch(scriptURL + "?nolag=" + Date.now());
+                const rawData = await response.json(); 
+
+                if (rawData && rawData.length > 0) {
+                    const row1 = rawData[0]; 
+                    const clean = (t) => String(t).replace(/"/g, '').trim();
+
+                    // Skorları al
+                    let newHomeScore = parseInt(clean(row1[1])) || 0;
+                    let newAwayScore = parseInt(clean(row1[2])) || 0;
+
+                    // --- GOL KONTROL MANTIĞI ---
+                    
+                    // Eğer sistem yeni açıldıysa (prevHomeScore null ise) animasyon yapma, sadece kaydet
+                    if (prevHomeScore === null) {
+                        prevHomeScore = newHomeScore;
+                        prevAwayScore = newAwayScore;
+                        isFirstLoad = false; // Kildi aç, bundan sonraki gollerde animasyon çalışsın
+                    } 
+                    else {
+                        // Sayfa yüklendikten SONRA skor değişirse:
+                        if (!isFirstLoad) {
+                            if (newHomeScore > prevHomeScore) {
+                                // Ev Sahibi Logosu (Sütun 10)
+                                triggerGoalAnimation(clean(row1[10]));
+                            } 
+                            else if (newAwayScore > prevAwayScore) {
+                                // Deplasman Logosu (Sütun 11)
+                                triggerGoalAnimation(clean(row1[11]));
+                            }
+                        }
+                        
+                        // Yeni skorları hafızaya al
+                        prevHomeScore = newHomeScore;
+                        prevAwayScore = newAwayScore;
+                    }
+
+                    // --- EKRAN GÜNCELLEMELERİ ---
+                    document.getElementById("score").innerText = newHomeScore + " - " + newAwayScore;
+                    document.getElementById("home").innerText = clean(row1[0]);
+                    document.getElementById("away").innerText = clean(row1[3]);
+
+                    // Süre Hesaplaması
+                    let timeStr = clean(row1[4]); 
+                    let extraStr = clean(row1[5]);
+                    if (timeStr && timeStr.includes(":")) {
+                        let parts = timeStr.split(":");
+                        matchStartTime = new Date();
+                        matchStartTime.setHours(parseInt(parts[0]), parseInt(parts[1]), 0, 0);
+                        addedMinutes = parseInt(extraStr) || 0;
+                    }
+
+                    // Kartlar ve Logolar
+                    updateCards("home-cards", clean(row1[6]), clean(row1[7]));
+                    updateCards("away-cards", clean(row1[8]), clean(row1[9]));
+
+                    // Skorborddaki küçük logolar
+                    if(row1[10]) document.getElementById("homeLogoImg").src = clean(row1[10]);
+                    if(row1[11]) document.getElementById("awayLogoImg").src = clean(row1[11]);
+                    if(row1[12]) document.getElementById("leagueLogoImg").src = clean(row1[12]);
+                    
+                    // Alt Bant Mesajı ve Kadrolar
+                    updateAnnouncement(clean(row1[13]), clean(row1[14]));
+                    updateLineups(rawData);
+                    updateSideMessage(clean(row1[18]));
+
+                    document.getElementById("status").style.display = "none";
+                }
+            } catch (error) {
+                console.error("Veri hatası:", error);
+            }
+        }
+
+        // GOL ANİMASYONU TETİKLEYİCİ
+        function triggerGoalAnimation(logoUrl) {
+            const container = document.getElementById('goal-lower-third');
+            const imgElement = document.getElementById('goal-team-logo');
+
+            // 1. Logoyu Yükle
+            if(logoUrl) imgElement.src = logoUrl;
+            
+            // 2. Önce sınıfı temizle (Reset)
+            container.classList.remove('active');
+            
+            // 3. Minik bir gecikmeyle sınıfı ekle (Tarayıcı animasyonu baştan başlatsın diye)
+            // "void element.offsetWidth" hilesi tarayıcıyı zorla yeniden çizdirir
+            void container.offsetWidth; 
+            
+            container.classList.add('active');
+
+            // 4. 6 Saniye sonra kapat
+            setTimeout(() => {
+                container.classList.remove('active');
+            }, 6000);
+        }
+
+        // --- DİĞER YARDIMCI FONKSİYONLAR ---
+
+        function updateSideMessage(message) {
+            const box = document.getElementById("tv-message-box"); // HTML'de id'si "tv-message-box" olan div olmalı
+            const textBox = document.getElementById("tv-message-text");
+        
+            
+            if (!box || !textBox) return;
+
+            if (message && message !== "" && message !== "undefined") {
+                textBox.innerText = message; 
+                box.classList.add("active");
+            } else {
+                box.classList.remove("active");
+            }
+        }
+
+        function updateLineups(data) {
+            const container = document.getElementById("lineup-container");
+            const homeList = document.getElementById("home-player-list");
+            const awayList = document.getElementById("away-player-list");
+            const trigger = data[0][15] ? String(data[0][15]).trim().toUpperCase() : "";
+            
+            if (trigger === "KADRO") {
+                container.classList.add("show");
+                let homeHTML = "";
+                for(let i=0; i<7; i++) { if(data[i] && data[i][16]) homeHTML += `<li>${data[i][16]}</li>`; }
+                homeList.innerHTML = homeHTML;
+                let awayHTML = "";
+                for(let i=0; i<7; i++) { if(data[i] && data[i][17]) awayHTML += `<li>${data[i][17]}</li>`; }
+                awayList.innerHTML = awayHTML;
+            } else {
+                container.classList.remove("show");
+            }
+        }
+
+        function updateAnnouncement(title, name) {
+            const bar = document.getElementById("anons-bar");
+            const titleBox = document.getElementById("anons-title");
+            const nameBox = document.getElementById("anons-subtitle");
+            if (!title || title === "" || title === "undefined") { bar.classList.remove("active"); return; }
+            titleBox.innerText = title;
+            nameBox.innerText = name && name !== "undefined" ? name : "";
+            bar.classList.remove("bg-goal", "bg-red", "bg-yellow");
+            let lowerText = title.toLowerCase();
+            if (lowerText.includes("gol")) bar.classList.add("bg-goal");
+            else if (lowerText.includes("kırmızı")) bar.classList.add("bg-red");
+            else if (lowerText.includes("sarı") || lowerText.includes("sari")) bar.classList.add("bg-yellow");
+            bar.classList.add("active");
+        }
+
+        function updateCards(elementId, redCount, yellowCount) {
+            const container = document.getElementById(elementId);
+            let html = "";
+            let r = parseInt(redCount) || 0;
+            let y = parseInt(yellowCount) || 0;
+            if (r > 0) { let countText = r > 1 ? `<span class="card-count">${r}</span>` : ""; html += `<div class="card red">${countText}</div>`; }
+            if (y > 0) { let countText = y > 1 ? `<span class="card-count">${y}</span>` : ""; html += `<div class="card yellow">${countText}</div>`; }
+            container.innerHTML = html;
+        }
+
+        function runTimer() {
+            if (!matchStartTime) return;
+            let now = new Date();
+            let diff = Math.floor((now - matchStartTime) / 1000);
+            if (diff < 0) diff = 0;
+            diff += (addedMinutes * 60);
+            let m = Math.floor(diff / 60);
+            let s = diff % 60;
+            document.getElementById("timer").innerText = (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+        }
+
+        // BAŞLAT
+        setInterval(updateData, 2000);
+        updateData();
+        setInterval(runTimer, 250);
+    </script>
+</body>
+</html>
