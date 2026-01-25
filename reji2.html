@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Golden League Reji & VAR Paneli</title>
+    <style>
+        body { background-color: #121212; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; text-align: center; }
+        h2 { margin: 5px 0 15px; color: #ffb703; font-size: 18px; }
+
+        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-width: 600px; margin: 0 auto; }
+        .full-width { grid-column: span 2; }
+
+        .panel { background: #1e1e1e; padding: 10px; border-radius: 8px; border: 1px solid #333; }
+        .panel h3 { margin: 0 0 10px 0; color: #888; font-size: 13px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 5px; }
+
+        select { width: 100%; padding: 10px; background: #2c3e50; color: white; border: 1px solid #555; border-radius: 5px; font-size: 14px; margin-bottom: 5px; font-weight: bold; }
+        input { width: 90%; padding: 10px; margin-bottom: 5px; background: #222; border: 1px solid #444; color: white; border-radius: 4px;}
+
+        button { width: 100%; padding: 10px; margin: 2px 0; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; color: white; font-size: 14px; }
+        button:active { transform: scale(0.96); }
+
+        .btn-gol { background: #2ecc71; font-size: 20px; } 
+        .btn-sari { background: #f1c40f; color: #000; }
+        .btn-kirmizi { background: #c0392b; }
+        .btn-sil { background: #444; font-size: 11px; padding: 5px; opacity: 0.8; }
+        .btn-mavi { background: #3498db; }
+        .btn-mor { background: #9b59b6; }
+        .btn-gri { background: #555; }
+        .btn-turuncu { background: #e67e22; border-bottom: 3px solid #d35400; }
+
+        #status-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #333; padding: 5px; font-size: 11px; color: #aaa; text-align: center; border-top: 1px solid #444; }
+    </style>
+</head>
+<body>
+
+    <h2>⚽ LİG YÖNETİM & REJİ</h2>
+
+    <div class="grid-container">
+
+      <div class="panel full-width" style="border: 2px solid #e67e22;">
+        <h3>🏆 YENİ MAÇ KURULUMU</h3>
+        <div style="display:flex; gap:5px; margin-bottom:5px;">
+          <select id="yeniEvSecim">
+            <option value="">Ev Sahibi Seç...</option>
+          </select>
+          <span style="padding-top:10px; font-weight:bold;">VS</span>
+          <select id="yeniDepSecim">
+            <option value="">Deplasman Seç...</option>
+          </select>
+        </div>
+        <button class="btn-turuncu" onclick="macKur()">MAÇI KUR VE SKORLARI SIFIRLA</button>
+        <p style="font-size:11px; color:#aaa; margin-top:5px;">*Bu butona basınca takımlar değişir, skor ve kartlar sıfırlanır.</p>
+      </div>
+
+      <div class="panel">
+        <h3>EV SAHİBİ KONTROL</h3>
+        <button class="btn-gol" onclick="send('evGol')">+1 GOL</button>
+        <div style="display:flex; gap:5px;">
+          <button class="btn-sari" onclick="send('evSari')">Sarı</button>
+          <button class="btn-kirmizi" onclick="send('evKirmizi')">Kırmızı</button>
+        </div>
+        <button class="btn-sil" onclick="send('evGolSil')">Gol Sil (-)</button>
+      </div>
+
+      <div class="panel">
+        <h3>DEPLASMAN KONTROL</h3>
+        <button class="btn-gol" onclick="send('depGol')">+1 GOL</button>
+        <div style="display:flex; gap:5px;">
+          <button class="btn-sari" onclick="send('depSari')">Sarı</button>
+          <button class="btn-kirmizi" onclick="send('depKirmizi')">Kırmızı</button>
+        </div>
+        <button class="btn-sil" onclick="send('depGolSil')">Gol Sil (-)</button>
+      </div>
+      
+      <div class="panel full-width">
+         <button class="btn-gri" onclick="send('kartSifirla')">SADECE KARTLARI SIFIRLA</button>
+      </div>
+
+      <div class="panel full-width" style="border: 2px solid #FFD700; background-color: #2c2c2c;">
+        <h3 style="color: #FFD700;">🖥️ VAR SİSTEMİ YÖNETİMİ</h3>
+        
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px;">
+            <button onclick="varYayinla('GOL İNCELENİYOR')" style="background:#444; color:#fff; padding:10px; border:1px solid #FFD700; cursor:pointer;">⚽ GOL İNCELE</button>
+            <button onclick="varYayinla('PENALTI KONTROLÜ')" style="background:#444; color:#fff; padding:10px; border:1px solid #FFD700; cursor:pointer;">⚠️ PENALTI</button>
+            <button onclick="varYayinla('OFSAYT KONTROLÜ')" style="background:#444; color:#fff; padding:10px; border:1px solid #FFD700; cursor:pointer;">🚩 OFSAYT</button>
+            <button onclick="varYayinla('KART İNCELEMESİ')" style="background:#444; color:#fff; padding:10px; border:1px solid #FFD700; cursor:pointer;">🟥 KIRMIZI KART</button>
+        </div>
+
+        <button onclick="varKapat()" style="width:100%; background:#c0392b; color:#fff; padding:10px; border:none; font-weight:bold; cursor:pointer;">
+            ❌ VAR EKRANINI KAPAT
+        </button>
+        <div id="varStatus" style="color:#aaa; font-size:11px; text-align:center; margin-top:5px;">Sistem Hazır</div>
+      </div>
+
+      <div class="panel full-width" style="border: 2px solid #3498db;">
+        <h3>📢 ALT BANT (GOL/KART YAZISI)</h3>
+        <div style="display:flex; gap:5px;">
+           <select id="takimSecimi" onchange="oyuncuListesiniGuncelle()">
+             <option value="">Takım...</option>
+             <option value="ev">EV SAHİBİ</option>
+             <option value="dep">DEPLASMAN</option>
+           </select>
+           <select id="oyuncuSecimi">
+             <option value="">Oyuncu...</option>
+           </select>
+        </div>
+        <select id="olayTipi">
+          <option value="GOL">GOL</option>
+          <option value="Sarı Kart">🟨 SARI KART</option>
+          <option value="Kırmızı Kart">🟥 KIRMIZI KART</option>
+          <option value="OYUNCU DEĞİŞİKLİĞİ">🔄 OYUNCU DEĞİŞİKLİĞİ</option>
+        </select>
+        <div style="display:flex; gap:5px; margin-top:5px;">
+          <button class="btn-mavi" onclick="listedenYayinla()">Ekrana Yansıt</button>
+          <button class="btn-gri" onclick="send('anonsTemizle')">Temizle</button>
+        </div>
+      </div>
+      
+      <div class="panel full-width">
+        <button class="btn-turuncu" onclick="golSesiCal()">🔊 GOOOOL SESİ</button>
+        <audio id="audioPlayer" src="https://files.catbox.moe/kendi_dosyan.mp3"></audio>
+      </div>
+
+      <div class="panel full-width">
+        <h3>GENEL AYARLAR</h3>
+        <div style="display:flex; gap:5px;">
+          <button class="btn-mavi" onclick="send('macBaslat')">⏱ Maç Başlat</button>
+          <button class="btn-mor" onclick="send('kadroAc')">Kadro Aç</button>
+          <button class="btn-gri" onclick="send('kadroKapat')">Kadro Kapat</button>
+        </div>
+        <div style="display:flex; gap:5px; margin-top:5px;">
+            <input type="text" id="tvMesaj" placeholder="TV Mesajı">
+            <button class="btn-mavi" onclick="gonderTvMesaj()">Göster</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div id="status-bar">Bağlanıyor...</div>
+
+    <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.9.min.js"></script>
+
+    <script>
+        // =============================================================================
+        // 0. PUBNUB VAR SİSTEMİ
+        // =============================================================================
+        
+        const pubnub = new PubNub({
+            publishKey: "pub-c-84a7bd29-50ba-405a-b10b-808f24c7150e",
+            subscribeKey: "sub-c-477e7b00-d093-4262-8c88-f69b58ba69e5",
+            uuid: "reji_control"
+        });
+
+        function varYayinla(sebep) {
+            document.getElementById('varStatus').innerText = "YAYINDA: " + sebep;
+            document.getElementById('varStatus').style.color = "#00ff00";
+            
+            pubnub.publish({
+                channel: "golden_league_kanal",
+                message: { komut: "VAR_AC", detay: sebep }
+            });
+        }
+
+        function varKapat() {
+            document.getElementById('varStatus').innerText = "KAPATILDI";
+            document.getElementById('varStatus').style.color = "#aaa";
+
+            pubnub.publish({
+                channel: "golden_league_kanal",
+                message: { komut: "VAR_KAPAT" }
+            });
+        }
+
+        // =============================================================================
+        // 1. AYARLAR & REJİ LOGIC
+        // =============================================================================
+
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz0kGK_MugMYjCKcqPoZDVbU54RZC1tXPVEyJNcxnKMy2QKP19N7qxi1K0s6K0ZB68TMQ/exec"; 
+        const LOG_URL = "https://script.google.com/macros/s/AKfycbyfSGuGPUoXoKWfTTGb1h0ByqSTUE-PxHOe2U81EFdPRsqtAaC04GC2dYxk-XrlsQRUBQ/exec"; 
+
+        // --- BURAYI DÜZENLE: SİLİNİNCE GERİ GELECEK YAZI ---
+        const VARSAYILAN_MESAJ = "Golden League GAzİantep - İnstagram: @goldenleague_gazİantep - lİge Katıl heyecanı yaşa"; 
+
+        let evOyunculari = [];
+        let depOyunculari = [];
+        let mevcutMacAdi = "GoldenLeague_Mac"; 
+
+        // ZAMANLAYICI
+        let matchStartTime = null; 
+        let addedMinutes = 0;
+
+        // =============================================================================
+        // 2. BAŞLANGIÇ
+        // =============================================================================
+
+        window.onload = function() {
+          // Hafızadan sayacı geri yükle
+          let kayitli = localStorage.getItem("localMatchStart");
+          if (kayitli && kayitli !== "null") {
+              matchStartTime = new Date(kayitli);
+          }
+
+          // Sayfa açıldığında TV Mesaj kutusunu varsayılan ile doldur
+          let tvInput = document.getElementById("tvMesaj");
+          if(tvInput && tvInput.value === "") {
+              tvInput.value = VARSAYILAN_MESAJ;
+          }
+
+          fetchData(); 
+          
+          let evSecim = document.getElementById("yeniEvSecim");
+          let depSecim = document.getElementById("yeniDepSecim");
+          if(evSecim) evSecim.addEventListener("change", macAdiGuncelle);
+          if(depSecim) depSecim.addEventListener("change", macAdiGuncelle);
+
+          // Status Bar Saat Göstergesi
+          setInterval(() => {
+             let sb = document.getElementById("status-bar");
+             if(sb && matchStartTime) {
+                 let dk = dakikaHesapla();
+                 sb.innerText = "⏱️ MAÇ SÜRESİ: " + dk;
+                 sb.style.color = "#00ff00"; 
+             }
+          }, 1000);
+
+          setInterval(fetchData, 3000);
+        };
+
+        // =============================================================================
+        // 3. MAÇI KUR (GÜNCELLENDİ: ARTIK MESAJI DA SIFIRLIYOR)
+        // =============================================================================
+
+        function macKur() {
+          let evData = document.getElementById("yeniEvSecim").value;
+          let depData = document.getElementById("yeniDepSecim").value;
+
+          if(evData === "" || depData === "") { alert("Takımları seçmedin!"); return; }
+          if(!confirm("Maç BAŞLATILSIN MI? Sayaç sıfırlanacak.")) return;
+
+          matchStartTime = new Date(); 
+          localStorage.setItem("localMatchStart", matchStartTime.toISOString());
+          
+          macAdiGuncelle();
+
+          let evParca = evData.split("|||");
+          let depParca = depData.split("|||");
+
+          // 1. Maçı Kur
+          let params = "&ev=" + encodeURIComponent(evParca[0]) + 
+                       "&evRow=" + evParca[1] +
+                       "&dep=" + encodeURIComponent(depParca[0]) +
+                       "&depRow=" + depParca[1];
+
+          send("macKur", params);
+
+          // 2. OTOMATİK OLARAK VARSAYILAN MESAJI DA GÖNDER (Kayan yazı silinmesin diye)
+          // Input kutusuna yazıyı koy
+          document.getElementById("tvMesaj").value = VARSAYILAN_MESAJ;
+          // Sunucuya gönder
+          setTimeout(() => {
+              send("tvMesajGonder", "&mesaj=" + encodeURIComponent(VARSAYILAN_MESAJ));
+          }, 1500); // Maç kurulduktan 1.5 saniye sonra mesajı bas
+        }
+
+        // =============================================================================
+        // 4. VERİ ÇEKME
+        // =============================================================================
+
+        function fetchData() {
+          fetch(SCRIPT_URL + "?t=" + new Date().getTime())
+            .then(response => response.json())
+            .then(data => {
+              // Saat Senkronizasyonu (Sadece bizde yoksa al)
+              if (data && data.length > 0 && matchStartTime === null) {
+                  let row1 = data[0]; 
+                  let timeStr = String(row1[4]).replace(/"/g, '').trim(); 
+                  if (timeStr && timeStr.includes(":")) {
+                      let parts = timeStr.split(":");
+                      let temp = new Date();
+                      temp.setHours(parseInt(parts[0]), parseInt(parts[1]), 0, 0);
+                      matchStartTime = temp;
+                      localStorage.setItem("localMatchStart", matchStartTime.toISOString());
+                  }
+              }
+
+              // Liste Doldurma
+              let evSecim = document.getElementById("yeniEvSecim");
+              let depSecim = document.getElementById("yeniDepSecim");
+                
+              if (evSecim && evSecim.options.length <= 1) { 
+                  evSecim.innerHTML = '<option value="">Ev Sahibi Seç...</option>';
+                  depSecim.innerHTML = '<option value="">Deplasman Seç...</option>';
+
+                  for (let k = 5; k < data.length && k <= 25; k++) {
+                     if (data[k]) {
+                       let takimAdi = data[k][0]; 
+                       if (takimAdi && String(takimAdi).trim() !== "") {
+                         let rowNumber = k + 1;
+                         let valueData = takimAdi + "|||" + rowNumber;
+                         
+                         let opt1 = document.createElement("option");
+                         opt1.value = valueData;
+                         opt1.text = takimAdi;
+                         evSecim.add(opt1);
+
+                         let opt2 = document.createElement("option");
+                         opt2.value = valueData;
+                         opt2.text = takimAdi;
+                         depSecim.add(opt2);
+                       }
+                     }
+                  }
+              }
+
+              // Oyuncuları Hafızaya Al (Kadro Logu İçin Lazım)
+              evOyunculari = [];
+              depOyunculari = [];
+              for (let i = 0; i < data.length && i < 50; i++) { 
+                if (data[i]) {
+                  let evOyuncu = data[i][16]; 
+                  let depOyuncu = data[i][17]; 
+                  if (evOyuncu && String(evOyuncu).trim() !== "" && evOyuncu !== "KADRO") evOyunculari.push(evOyuncu);
+                  if (depOyuncu && String(depOyuncu).trim() !== "") depOyunculari.push(depOyuncu);
+                }
+              }
+            });
+        }
+
+        // =============================================================================
+        // 5. SUNUCU İLETİŞİMİ VE LOGLAMA
+        // =============================================================================
+
+        function send(action, params = "") {
+          let statusBar = document.getElementById("status-bar");
+          if(statusBar) { statusBar.innerText = "İşleniyor..."; statusBar.style.color = "orange"; }
+          
+          // 1. Skorborda Gönder
+          fetch(SCRIPT_URL + "?action=" + action + params, { mode: "no-cors" }).then(() => {
+              if(statusBar) { statusBar.style.color = "#2ecc71"; setTimeout(() => { let dk = dakikaHesapla(); statusBar.innerText = "⏱️ MAÇ: " + dk; }, 500); }
+          });
+
+          // 2. KADRO LOGLAMA
+          if (action === "kadroAc") {
+              let evListesiStr = evOyunculari.join("\n");
+              let depListesiStr = depOyunculari.join("\n");
+              olayKaydet("KADRO", "Genel", "KADROLAR YANSITILDI", evListesiStr, depListesiStr);
+          }
+        }
+
+        // =============================================================================
+        // 6. LOGLAMA SİSTEMİ
+        // =============================================================================
+
+        function olayKaydet(olayTipi, takim, oyuncuAdi, evKadro = "", depKadro = "") {
+          let anlikDakika = dakikaHesapla(); 
+
+          const veriPaketi = {
+            macAdi: mevcutMacAdi,
+            dakika: anlikDakika, 
+            olay: olayTipi,
+            takim: takim,
+            oyuncu: oyuncuAdi || "Belirsiz",
+            not: "",
+            evKadro: evKadro,  // G Sütunu
+            depKadro: depKadro // H Sütunu
+          };
+
+          fetch(LOG_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(veriPaketi)
+          })
+          .then(() => console.log("Log: " + olayTipi));
+        }
+
+        // =============================================================================
+        // 7. DİĞER FONKSİYONLAR
+        // =============================================================================
+
+        function dakikaHesapla() {
+            if (!matchStartTime) return "00:00";
+            let now = new Date();
+            let diff = Math.floor((now - matchStartTime) / 1000);
+            if (diff < 0) diff = 0;
+            let m = Math.floor(diff / 60);
+            let s = diff % 60;
+            return (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+        }
+
+        function macAdiGuncelle() {
+          let evData = document.getElementById("yeniEvSecim").value;
+          let depData = document.getElementById("yeniDepSecim").value;
+          let evIsim = "Ev";
+          let depIsim = "Dep";
+          if (evData && evData.includes("|||")) evIsim = evData.split("|||")[0];
+          if (depData && depData.includes("|||")) depIsim = depData.split("|||")[0];
+          mevcutMacAdi = evIsim + " vs " + depIsim;
+        }
+
+        function listedenYayinla() {
+          let baslik = document.getElementById("olayTipi").value; 
+          let oyuncu = document.getElementById("oyuncuSecimi").value;
+          let takimKodu = document.getElementById("takimSecimi").value; 
+          if (!oyuncu || oyuncu === "") return;
+          
+          send("anonsGonder", "&baslik=" + encodeURIComponent(baslik) + "&alt=" + encodeURIComponent(oyuncu));
+          
+          let takimAdi = (takimKodu === "ev") ? "Ev Sahibi" : (takimKodu === "dep" ? "Deplasman" : "Genel");
+          olayKaydet(baslik, takimAdi, oyuncu);
+        }
+
+        // --- GÜNCELLENEN MESAJ GÖNDERME FONKSİYONU ---
+        function gonderTvMesaj() {
+          let inputElement = document.getElementById("tvMesaj");
+          let m = inputElement.value;
+          
+          // Eğer kutu boşsa veya silinmişse, VARSAYILAN mesajı geri yükle ve onu gönder
+          if(m.trim() === "") {
+              m = VARSAYILAN_MESAJ;
+              inputElement.value = m; // Kutuyu da doldur
+          }
+
+          send("tvMesajGonder", "&mesaj=" + encodeURIComponent(m));
+        }
+
+        function golSesiCal() {
+          var audio = document.getElementById("audioPlayer");
+          if(audio) audio.play();
+        }
+
+        function oyuncuListesiniGuncelle() {
+          let takim = document.getElementById("takimSecimi").value;
+          let oyuncuSelect = document.getElementById("oyuncuSecimi");
+          oyuncuSelect.innerHTML = "";
+          let liste = (takim === "ev") ? evOyunculari : (takim === "dep" ? depOyunculari : []);
+          
+          if (liste.length === 0) {
+            let opt = document.createElement("option"); opt.text = "Seçiniz..."; oyuncuSelect.add(opt); return;
+          }
+          liste.forEach(function(oyuncu) {
+            let opt = document.createElement("option"); opt.value = oyuncu; opt.text = oyuncu; oyuncuSelect.add(opt);
+          });
+        }
+    </script>
+</body>
+</html>
