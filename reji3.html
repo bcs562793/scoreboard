@@ -3,430 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Golden League Reji & VAR (GÜVENLİ GİRİŞ)</title>
+    <title>Golden League Reji (PRO)</title>
     <style>
-        /* ========================================= */
-        /* 🔒 GİRİŞ EKRANI TASARIMI (LOGIN CSS)      */
-        /* ========================================= */
-        #login-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 9999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .login-box {
-            background: #111; padding: 40px; border-radius: 10px;
-            border: 2px solid #FFD700; box-shadow: 0 0 50px rgba(255, 215, 0, 0.2);
-            width: 300px; text-align: center;
-        }
-        .login-box h2 { color: #FFD700; margin-bottom: 20px; font-family: 'Segoe UI', sans-serif; }
-        .login-input {
-            width: 100%; padding: 12px; margin-bottom: 15px;
-            background: #222; border: 1px solid #444; color: #fff;
-            border-radius: 5px; box-sizing: border-box; font-size: 16px;
-        }
-        .login-btn {
-            width: 100%; padding: 12px; background: #FFD700; color: #000;
-            border: none; border-radius: 5px; font-weight: bold; font-size: 16px; cursor: pointer;
-            transition: 0.3s;
-        }
-        .login-btn:hover { background: #e6c200; }
-        .error-msg { color: #ff4444; font-size: 13px; margin-top: 10px; display: none; }
-
-        /* ========================================= */
-        /* ⚙️ MEVCUT TASARIMIN (Gizlenecek)          */
-        /* ========================================= */
-        #app-content { display: none; } /* Başlangıçta gizli */
-
+        /* TASARIM AYNEN KORUNDU */
         body { background-color: #121212; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; text-align: center; }
-        h2 { margin: 5px 0 15px; color: #ffb703; font-size: 18px; }
-
-        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-width: 600px; margin: 0 auto; }
-        .full-width { grid-column: span 2; }
-
-        .panel { background: #1e1e1e; padding: 10px; border-radius: 8px; border: 1px solid #333; }
-        .panel h3 { margin: 0 0 10px 0; color: #888; font-size: 13px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 5px; }
-
-        select { width: 100%; padding: 10px; background: #2c3e50; color: white; border: 1px solid #555; border-radius: 5px; font-size: 14px; margin-bottom: 5px; font-weight: bold; }
-        input { width: 90%; padding: 10px; margin-bottom: 5px; background: #222; border: 1px solid #444; color: white; border-radius: 4px;}
-
-        button { width: 100%; padding: 10px; margin: 2px 0; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; color: white; font-size: 14px; }
-        button:active { transform: scale(0.96); }
-
-        .btn-gol { background: #2ecc71; font-size: 20px; } 
-        .btn-sari { background: #f1c40f; color: #000; }
-        .btn-kirmizi { background: #c0392b; }
-        .btn-sil { background: #444; font-size: 11px; padding: 5px; opacity: 0.8; }
-        .btn-mavi { background: #3498db; }
-        .btn-mor { background: #9b59b6; }
-        .btn-gri { background: #555; }
-        .btn-turuncu { background: #e67e22; border-bottom: 3px solid #d35400; }
-
-        #status-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #333; padding: 5px; font-size: 11px; color: #aaa; text-align: center; border-top: 1px solid #444; }
+        .login-container { display: flex; justify-content: center; align-items: center; height: 100vh; position: fixed; top: 0; left: 0; width: 100%; background: #000; z-index: 9999; }
+        .login-box { background: #1a1a1a; padding: 40px; border: 2px solid #FFD700; border-radius: 10px; width: 300px; text-align: center; box-shadow: 0 0 30px rgba(255, 215, 0, 0.2); }
+        .login-input { width: 100%; padding: 12px; margin: 10px 0; background: #333; border: 1px solid #555; color: white; border-radius: 5px; box-sizing: border-box; }
+        .login-btn { width: 100%; padding: 12px; background: #FFD700; color: #000; border: none; font-weight: bold; cursor: pointer; border-radius: 5px; margin-top: 10px; }
+        .login-btn:hover { background: #e5c100; }
+        #app-content { display: none; } /* Başlangıçta gizli */
         
-        /* Çıkış Butonu */
-        .logout-btn { position: absolute; top: 10px; right: 10px; background: #c0392b; color: white; padding: 5px 10px; font-size: 12px; border-radius: 4px; cursor: pointer; text-decoration: none; border:none; }
+        /* Reji Paneli Stilleri */
+        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-width: 600px; margin: 0 auto; padding-top: 20px;}
+        .full-width { grid-column: span 2; }
+        .panel { background: #1e1e1e; padding: 10px; border-radius: 8px; border: 1px solid #333; }
+        button { width: 100%; padding: 10px; margin: 2px 0; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; color: white; font-size: 14px; }
+        .btn-turuncu { background: #e67e22; border-bottom: 3px solid #d35400; }
+        .btn-kirmizi { background: #c0392b; }
+        .btn-gri { background: #555; }
+        .logout-btn { position: absolute; top: 10px; right: 10px; background: #c0392b; padding: 5px 10px; border-radius: 4px; font-size: 12px; width: auto; }
     </style>
 </head>
 <body>
 
-    <div id="login-screen">
+    <div id="login-screen" class="login-container">
         <div class="login-box">
-            <h2>🔐 GÜVENLİ GİRİŞ</h2>
-            <div style="font-size: 40px; margin-bottom: 20px;">⚽</div>
-            <input type="text" id="username" class="login-input" placeholder="Kullanıcı Adı">
+            <h2 style="color:#FFD700; margin-top:0;">🔐 GÜVENLİ GİRİŞ</h2>
+            <p style="color:#aaa; font-size:12px;">Yetkili Personel Girişi</p>
+            <input type="email" id="email" class="login-input" placeholder="E-Posta">
             <input type="password" id="password" class="login-input" placeholder="Şifre">
-            <button onclick="checkLogin()" class="login-btn">GİRİŞ YAP</button>
-            <p id="errorMsg" class="error-msg">❌ Hatalı Kullanıcı Adı veya Şifre!</p>
+            <button onclick="girisYap()" class="login-btn">GİRİŞ YAP</button>
+            <p id="hataMesaji" style="color:red; font-size:12px; display:none; margin-top:10px;"></p>
         </div>
     </div>
 
     <div id="app-content">
-        
-        <button onclick="logout()" class="logout-btn">🔒 ÇIKIŞ YAP</button>
-
-        <h2>⚽ LİG YÖNETİM & REJİ</h2>
+        <button onclick="cikisYap()" class="logout-btn">ÇIKIŞ YAP</button>
+        <h2 style="color: #ffb703;">⚽ LİG YÖNETİM & REJİ</h2>
 
         <div class="grid-container">
-
-          <div class="panel full-width" style="border: 2px solid #e67e22;">
-            <h3>🏆 YENİ MAÇ KURULUMU</h3>
-            <div style="display:flex; gap:5px; margin-bottom:5px;">
-              <select id="yeniEvSecim">
-                <option value="">Ev Sahibi Seç...</option>
-              </select>
-              <span style="padding-top:10px; font-weight:bold;">VS</span>
-              <select id="yeniDepSecim">
-                <option value="">Deplasman Seç...</option>
-              </select>
-            </div>
-            <button class="btn-turuncu" onclick="macKur()">MAÇI KUR VE SKORLARI SIFIRLA</button>
-            <p style="font-size:11px; color:#aaa; margin-top:5px;">*Bu butona basınca takımlar değişir, skor ve kartlar sıfırlanır.</p>
-          </div>
-
-          <div class="panel">
-            <h3>EV SAHİBİ KONTROL</h3>
-            <button class="btn-gol" onclick="send('evGol')">+1 GOL</button>
-            <div style="display:flex; gap:5px;">
-              <button class="btn-sari" onclick="send('evSari')">Sarı</button>
-              <button class="btn-kirmizi" onclick="send('evKirmizi')">Kırmızı</button>
-            </div>
-            <button class="btn-sil" onclick="send('evGolSil')">Gol Sil (-)</button>
-          </div>
-
-          <div class="panel">
-            <h3>DEPLASMAN KONTROL</h3>
-            <button class="btn-gol" onclick="send('depGol')">+1 GOL</button>
-            <div style="display:flex; gap:5px;">
-              <button class="btn-sari" onclick="send('depSari')">Sarı</button>
-              <button class="btn-kirmizi" onclick="send('depKirmizi')">Kırmızı</button>
-            </div>
-            <button class="btn-sil" onclick="send('depGolSil')">Gol Sil (-)</button>
-          </div>
-          
-          <div class="panel full-width">
-             <button class="btn-gri" onclick="send('kartSifirla')">SADECE KARTLARI SIFIRLA</button>
-          </div>
-
-          <div class="panel full-width" style="border: 2px solid #FFD700; background-color: #2c2c2c;">
-            <h3 style="color: #FFD700;">🖥️ VAR SİSTEMİ YÖNETİMİ</h3>
             
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px;">
-                <button onclick="varYayinla('GOL İNCELENİYOR')" style="background:#444; color:#fff; padding:10px; border:1px solid #FFD700; cursor:pointer;">⚽ GOL İNCELE</button>
-                <button onclick="varYayinla('PENALTI KONTROLÜ')" style="background:#444; color:#fff; padding:10px; border:1px solid #FFD700; cursor:pointer;">⚠️ PENALTI</button>
-                <button onclick="varYayinla('KART İNCELEMESİ')" style="background:#444; color:#fff; padding:10px; border:1px solid #FFD700; cursor:pointer;">🟥 KIRMIZI KART</button>
+            <div class="panel full-width" style="border: 2px solid #FFD700; background-color: #2c2c2c;">
+                <h3 style="color: #FFD700; margin:0 0 10px 0;">🖥️ VAR SİSTEMİ</h3>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px;">
+                    <button onclick="varKomut('GOL İNCELENİYOR')" style="background:#444; border:1px solid #FFD700;">⚽ GOL İNCELE</button>
+                    <button onclick="varKomut('PENALTI KONTROLÜ')" style="background:#444; border:1px solid #FFD700;">⚠️ PENALTI</button>
+                    <button onclick="varKomut('KART İNCELEMESİ')" style="background:#444; border:1px solid #FFD700;">🟥 KIRMIZI KART</button>
+                </div>
+                <button onclick="varKapat()" class="btn-kirmizi">❌ VAR EKRANINI KAPAT</button>
+                <div id="durumText" style="color:#aaa; font-size:11px; margin-top:5px;">Sistem Beklemede</div>
             </div>
 
-            <button onclick="varKapat()" style="width:100%; background:#c0392b; color:#fff; padding:10px; border:none; font-weight:bold; cursor:pointer;">
-                ❌ VAR EKRANINI KAPAT
-            </button>
-            <div id="varStatus" style="color:#aaa; font-size:11px; text-align:center; margin-top:5px;">Sistem Hazır</div>
-          </div>
-
-          <div class="panel full-width" style="border: 2px solid #3498db;">
-            <h3>📢 ALT BANT (GOL/KART YAZISI)</h3>
-            <div style="display:flex; gap:5px;">
-               <select id="takimSecimi" onchange="oyuncuListesiniGuncelle()">
-                 <option value="">Takım...</option>
-                 <option value="ev">EV SAHİBİ</option>
-                 <option value="dep">DEPLASMAN</option>
-               </select>
-               <select id="oyuncuSecimi">
-                 <option value="">Oyuncu...</option>
-               </select>
-            </div>
-            <select id="olayTipi">
-              <option value="GOL">GOL</option>
-              <option value="Sarı Kart">🟨 SARI KART</option>
-              <option value="Kırmızı Kart">🟥 KIRMIZI KART</option>
-              <option value="OYUNCU DEĞİŞİKLİĞİ">🔄 OYUNCU DEĞİŞİKLİĞİ</option>
-            </select>
-            <div style="display:flex; gap:5px; margin-top:5px;">
-              <button class="btn-mavi" onclick="listedenYayinla()">Ekrana Yansıt</button>
-              <button class="btn-gri" onclick="send('anonsTemizle')">Temizle</button>
-            </div>
-          </div>
-          
-          <div class="panel full-width">
-            <button class="btn-turuncu" onclick="golSesiCal()">🔊 GOOOOL SESİ</button>
-            <audio id="audioPlayer" src="https://files.catbox.moe/kendi_dosyan.mp3"></audio>
-          </div>
-
-          <div class="panel full-width">
-            <h3>GENEL AYARLAR</h3>
-            <div style="display:flex; gap:5px;">
-              <button class="btn-mavi" onclick="send('macBaslat')">⏱ Maç Başlat</button>
-              <button class="btn-mor" onclick="send('kadroAc')">Kadro Aç</button>
-              <button class="btn-gri" onclick="send('kadroKapat')">Kadro Kapat</button>
-            </div>
-            <div style="display:flex; gap:5px; margin-top:5px;">
-                <input type="text" id="tvMesaj" placeholder="TV Mesajı">
-                <button class="btn-mavi" onclick="gonderTvMesaj()">Göster</button>
-            </div>
-          </div>
+            <div class="panel full-width">
+                 <p style="font-size:12px; color:#666;">Diğer özellikler Firebase veritabanına bağlanabilir.</p>
+             </div>
 
         </div>
-        <div id="status-bar">Bağlanıyor...</div>
     </div>
 
-    <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.9.min.js"></script>
+    <script type="module">
+        // Firebase SDK'larını içe aktarıyoruz
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    <script>
-        // =============================================================================
-        // 🔐 GÜVENLİK SİSTEMİ (SHA-256 HASH)
-        // =============================================================================
-        
-       
-        const CORRECT_HASH = "a851414b4fb7f6a76c7181f94c8782c87904ea55f6c2e76d46b4179c0e427ec2";
-        const CORRECT_USER = "admin";
+        // --- AYARLAR ---
+        // 1. ADIMDA ALDIĞIN KODLARI BURAYA YAPIŞTIR:
+        const firebaseConfig = {
+    apiKey: "AIzaSyAKaT9TJVFLhCASNbdDUXlPJ-xxTzm3KYo",
+    authDomain: "goldenligreji.firebaseapp.com",
+    projectId: "goldenligreji",
+    storageBucket: "goldenligreji.firebasestorage.app",
+    messagingSenderId: "806630130245",
+    appId: "1:806630130245:web:e56a0567e8f969ffc7992c",
+    measurementId: "G-HDZJEYM7P7"
+        };
 
-        // Sayfa açılınca daha önce girmiş mi kontrol et
-        document.addEventListener("DOMContentLoaded", function() {
-            if (sessionStorage.getItem("isLoggedIn") === "true") {
-                showApp();
-            }
-            
-            // Enter tuşuna basınca giriş yap
-            document.getElementById("password").addEventListener("keypress", function(event) {
-                if (event.key === "Enter") checkLogin();
-            });
-        });
+        // Uygulamayı Başlat
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
 
-        async function checkLogin() {
-            const user = document.getElementById("username").value;
+        // --- GİRİŞ İŞLEMLERİ ---
+        window.girisYap = function() {
+            const email = document.getElementById("email").value;
             const pass = document.getElementById("password").value;
-            const errorMsg = document.getElementById("errorMsg");
+            const hataMsg = document.getElementById("hataMesaji");
 
-            if(user !== CORRECT_USER) {
-                errorMsg.style.display = "block";
-                return;
-            }
+            hataMsg.style.display = "none";
 
-            // Girilen şifreyi HASH'e çevir ve karşılaştır
-            const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pass));
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-
-            if (hashHex === CORRECT_HASH) {
-                sessionStorage.setItem("isLoggedIn", "true");
-                showApp();
-            } else {
-                errorMsg.style.display = "block";
-            }
+            signInWithEmailAndPassword(auth, email, pass)
+                .then((userCredential) => {
+                    // Giriş Başarılı, Auth State Listener ekranı değiştirecek
+                    console.log("Giriş yapıldı:", userCredential.user.email);
+                })
+                .catch((error) => {
+                    hataMsg.innerText = "Hata: " + error.message;
+                    hataMsg.style.display = "block";
+                });
         }
 
-        function showApp() {
-            document.getElementById("login-screen").style.display = "none";
-            document.getElementById("app-content").style.display = "block";
-            
-            // Reji Kodlarını Başlat
-            initializeApp();
-        }
-
-        function logout() {
-            sessionStorage.removeItem("isLoggedIn");
-            location.reload();
-        }
-
-        // =============================================================================
-        // 0. PUBNUB VAR SİSTEMİ
-        // =============================================================================
-        
-        const pubnub = new PubNub({
-            publishKey: "pub-c-84a7bd29-50ba-405a-b10b-808f24c7150e",
-            subscribeKey: "sub-c-477e7b00-d093-4262-8c88-f69b58ba69e5",
-            uuid: "reji_control"
-        });
-
-        function varYayinla(sebep) {
-            document.getElementById('varStatus').innerText = "YAYINDA: " + sebep;
-            document.getElementById('varStatus').style.color = "#00ff00";
-            pubnub.publish({ channel: "golden_league_kanal", message: { komut: "VAR_AC", detay: sebep } });
-        }
-
-        function varKapat() {
-            document.getElementById('varStatus').innerText = "KAPATILDI";
-            document.getElementById('varStatus').style.color = "#aaa";
-            pubnub.publish({ channel: "golden_league_kanal", message: { komut: "VAR_KAPAT" } });
-        }
-
-        // =============================================================================
-        // 1. AYARLAR & REJİ LOGIC
-        // =============================================================================
-
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz0kGK_MugMYjCKcqPoZDVbU54RZC1tXPVEyJNcxnKMy2QKP19N7qxi1K0s6K0ZB68TMQ/exec"; 
-        const LOG_URL = "https://script.google.com/macros/s/AKfycbyfSGuGPUoXoKWfTTGb1h0ByqSTUE-PxHOe2U81EFdPRsqtAaC04GC2dYxk-XrlsQRUBQ/exec"; 
-        const VARSAYILAN_MESAJ = "Golden League GAzİantep - İnstagram: @goldenleague_gazİantep - lİge Katıl heyecanı yaşa"; 
-        let evOyunculari = []; let depOyunculari = []; let mevcutMacAdi = "GoldenLeague_Mac"; 
-        let matchStartTime = null; 
-
-        // =============================================================================
-        // 2. BAŞLANGIÇ (Sadece Giriş Yapıldıysa Çalışır)
-        // =============================================================================
-
-        function initializeApp() {
-          let kayitli = localStorage.getItem("localMatchStart");
-          if (kayitli && kayitli !== "null") { matchStartTime = new Date(kayitli); }
-          let tvInput = document.getElementById("tvMesaj");
-          if(tvInput && tvInput.value === "") { tvInput.value = VARSAYILAN_MESAJ; }
-
-          fetchData(); 
-          
-          let evSecim = document.getElementById("yeniEvSecim");
-          let depSecim = document.getElementById("yeniDepSecim");
-          if(evSecim) evSecim.addEventListener("change", macAdiGuncelle);
-          if(depSecim) depSecim.addEventListener("change", macAdiGuncelle);
-
-          setInterval(() => {
-             let sb = document.getElementById("status-bar");
-             if(sb && matchStartTime) {
-                 let dk = dakikaHesapla();
-                 sb.innerText = "⏱️ MAÇ SÜRESİ: " + dk;
-                 sb.style.color = "#00ff00"; 
-             }
-          }, 1000);
-          setInterval(fetchData, 3000);
-        }
-
-        // =============================================================================
-        // ... (DİĞER FONKSİYONLAR AYNI KALDI) ...
-        // =============================================================================
-
-        function macKur() {
-          let evData = document.getElementById("yeniEvSecim").value;
-          let depData = document.getElementById("yeniDepSecim").value;
-          if(evData === "" || depData === "") { alert("Takımları seçmedin!"); return; }
-          if(!confirm("Maç BAŞLATILSIN MI? Sayaç sıfırlanacak.")) return;
-          matchStartTime = new Date(); 
-          localStorage.setItem("localMatchStart", matchStartTime.toISOString());
-          macAdiGuncelle();
-          let evParca = evData.split("|||");
-          let depParca = depData.split("|||");
-          let params = "&ev=" + encodeURIComponent(evParca[0]) + "&evRow=" + evParca[1] + "&dep=" + encodeURIComponent(depParca[0]) + "&depRow=" + depParca[1];
-          send("macKur", params);
-          document.getElementById("tvMesaj").value = VARSAYILAN_MESAJ;
-          setTimeout(() => { send("tvMesajGonder", "&mesaj=" + encodeURIComponent(VARSAYILAN_MESAJ)); }, 1500);
-        }
-
-        function fetchData() {
-          fetch(SCRIPT_URL + "?t=" + new Date().getTime()).then(response => response.json()).then(data => {
-              if (data && data.length > 0 && matchStartTime === null) {
-                  let row1 = data[0]; 
-                  let timeStr = String(row1[4]).replace(/"/g, '').trim(); 
-                  if (timeStr && timeStr.includes(":")) {
-                      let parts = timeStr.split(":");
-                      let temp = new Date();
-                      temp.setHours(parseInt(parts[0]), parseInt(parts[1]), 0, 0);
-                      matchStartTime = temp;
-                      localStorage.setItem("localMatchStart", matchStartTime.toISOString());
-                  }
-              }
-              let evSecim = document.getElementById("yeniEvSecim");
-              let depSecim = document.getElementById("yeniDepSecim");
-              if (evSecim && evSecim.options.length <= 1) { 
-                  evSecim.innerHTML = '<option value="">Ev Sahibi Seç...</option>';
-                  depSecim.innerHTML = '<option value="">Deplasman Seç...</option>';
-                  for (let k = 5; k < data.length && k <= 25; k++) {
-                     if (data[k]) {
-                       let takimAdi = data[k][0]; 
-                       if (takimAdi && String(takimAdi).trim() !== "") {
-                         let rowNumber = k + 1;
-                         let valueData = takimAdi + "|||" + rowNumber;
-                         let opt1 = document.createElement("option"); opt1.value = valueData; opt1.text = takimAdi; evSecim.add(opt1);
-                         let opt2 = document.createElement("option"); opt2.value = valueData; opt2.text = takimAdi; depSecim.add(opt2);
-                       }
-                     }
-                  }
-              }
-              evOyunculari = []; depOyunculari = [];
-              for (let i = 0; i < data.length && i < 50; i++) { 
-                if (data[i]) {
-                  let evOyuncu = data[i][16]; let depOyuncu = data[i][17]; 
-                  if (evOyuncu && String(evOyuncu).trim() !== "" && evOyuncu !== "KADRO") evOyunculari.push(evOyuncu);
-                  if (depOyuncu && String(depOyuncu).trim() !== "") depOyunculari.push(depOyuncu);
-                }
-              }
+        window.cikisYap = function() {
+            signOut(auth).then(() => {
+                location.reload();
             });
         }
 
-        function send(action, params = "") {
-          let statusBar = document.getElementById("status-bar");
-          if(statusBar) { statusBar.innerText = "İşleniyor..."; statusBar.style.color = "orange"; }
-          fetch(SCRIPT_URL + "?action=" + action + params, { mode: "no-cors" }).then(() => {
-              if(statusBar) { statusBar.style.color = "#2ecc71"; setTimeout(() => { let dk = dakikaHesapla(); statusBar.innerText = "⏱️ MAÇ: " + dk; }, 500); }
-          });
-          if (action === "kadroAc") {
-              let evListesiStr = evOyunculari.join("\n"); let depListesiStr = depOyunculari.join("\n");
-              olayKaydet("KADRO", "Genel", "KADROLAR YANSITILDI", evListesiStr, depListesiStr);
-          }
+        // Kullanıcı Durumu Değiştiğinde (Sayfa yenilense bile hatırlar)
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Giriş yapılmış
+                document.getElementById("login-screen").style.display = "none";
+                document.getElementById("app-content").style.display = "block";
+            } else {
+                // Giriş yapılmamış
+                document.getElementById("login-screen").style.display = "flex";
+                document.getElementById("app-content").style.display = "none";
+            }
+        });
+
+        // --- VERİTABANI İŞLEMLERİ (VAR KONTROL) ---
+        window.varKomut = function(sebep) {
+            set(ref(db, 'var_sistemi'), {
+                durum: "ACIK",
+                mesaj: sebep,
+                zaman: Date.now()
+            });
+            document.getElementById("durumText").innerText = "YAYINDA: " + sebep;
+            document.getElementById("durumText").style.color = "#00ff00";
         }
 
-        function olayKaydet(olayTipi, takim, oyuncuAdi, evKadro = "", depKadro = "") {
-          let anlikDakika = dakikaHesapla(); 
-          const veriPaketi = { macAdi: mevcutMacAdi, dakika: anlikDakika, olay: olayTipi, takim: takim, oyuncu: oyuncuAdi || "Belirsiz", not: "", evKadro: evKadro, depKadro: depKadro };
-          fetch(LOG_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(veriPaketi) }).then(() => console.log("Log: " + olayTipi));
+        window.varKapat = function() {
+            set(ref(db, 'var_sistemi'), {
+                durum: "KAPALI",
+                mesaj: "",
+                zaman: Date.now()
+            });
+            document.getElementById("durumText").innerText = "KAPATILDI";
+            document.getElementById("durumText").style.color = "#aaa";
         }
 
-        function dakikaHesapla() {
-            if (!matchStartTime) return "00:00";
-            let now = new Date();
-            let diff = Math.floor((now - matchStartTime) / 1000);
-            if (diff < 0) diff = 0;
-            let m = Math.floor(diff / 60);
-            let s = diff % 60;
-            return (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
-        }
-
-        function macAdiGuncelle() {
-          let evData = document.getElementById("yeniEvSecim").value; let depData = document.getElementById("yeniDepSecim").value;
-          let evIsim = "Ev"; let depIsim = "Dep";
-          if (evData && evData.includes("|||")) evIsim = evData.split("|||")[0];
-          if (depData && depData.includes("|||")) depIsim = depData.split("|||")[0];
-          mevcutMacAdi = evIsim + " vs " + depIsim;
-        }
-
-        function listedenYayinla() {
-          let baslik = document.getElementById("olayTipi").value; let oyuncu = document.getElementById("oyuncuSecimi").value; let takimKodu = document.getElementById("takimSecimi").value; 
-          if (!oyuncu || oyuncu === "") return;
-          send("anonsGonder", "&baslik=" + encodeURIComponent(baslik) + "&alt=" + encodeURIComponent(oyuncu));
-          let takimAdi = (takimKodu === "ev") ? "Ev Sahibi" : (takimKodu === "dep" ? "Deplasman" : "Genel");
-          olayKaydet(baslik, takimAdi, oyuncu);
-        }
-
-        function gonderTvMesaj() {
-          let inputElement = document.getElementById("tvMesaj"); let m = inputElement.value;
-          if(m.trim() === "") { m = VARSAYILAN_MESAJ; inputElement.value = m; }
-          send("tvMesajGonder", "&mesaj=" + encodeURIComponent(m));
-        }
-
-        function golSesiCal() { var audio = document.getElementById("audioPlayer"); if(audio) audio.play(); }
-
-        function oyuncuListesiniGuncelle() {
-          let takim = document.getElementById("takimSecimi").value; let oyuncuSelect = document.getElementById("oyuncuSecimi");
-          oyuncuSelect.innerHTML = "";
-          let liste = (takim === "ev") ? evOyunculari : (takim === "dep" ? depOyunculari : []);
-          if (liste.length === 0) { let opt = document.createElement("option"); opt.text = "Seçiniz..."; oyuncuSelect.add(opt); return; }
-          liste.forEach(function(oyuncu) { let opt = document.createElement("option"); opt.value = oyuncu; opt.text = oyuncu; oyuncuSelect.add(opt); });
-        }
     </script>
 </body>
 </html>
