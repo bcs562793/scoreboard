@@ -506,5 +506,36 @@
         }
     });
 </script>
+
+    <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.9.min.js"></script>
+<script>
+    // SENİN KEYLERİN İLE BAĞLANTI
+    const pubnub = new PubNub({
+        publishKey: "pub-c-84a7bd29-50ba-405a-b10b-808f24c7150e",
+        subscribeKey: "sub-c-477e7b00-d093-4262-8c88-f69b58ba69e5",
+        uuid: "scoreboard_screen"
+    });
+
+    pubnub.subscribe({ channels: ['golden_league_kanal'] });
+
+    pubnub.addListener({
+        message: function(event) {
+            const cmd = event.message;
+            const frame = document.getElementById('varFrame');
+            
+            // BURAYA KENDİ GITHUB LİNKİNİ YAPIŞTIR
+            const baseURL = "https://onlinescoreboard.store/var.html"; 
+
+            if (cmd.komut === "VAR_AC") {
+                frame.src = baseURL + "?sebep=" + encodeURIComponent(cmd.detay);
+                frame.style.display = 'block';
+            } else if (cmd.komut === "VAR_KAPAT") {
+                frame.style.display = 'none';
+                frame.src = ""; // Animasyonu sıfırla
+            }
+        }
+    });
+</script>
+    
 </body>
 </html>
