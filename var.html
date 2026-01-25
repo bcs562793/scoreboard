@@ -2,144 +2,128 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Golden League VAR Overlay (Bottom)</title>
+    <title>Golden League VAR</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;700;900&display=swap');
 
         body {
             margin: 0;
             padding: 0;
-            background-color: transparent; 
-            overflow: hidden;
-            font-family: 'Chakra Petch', sans-serif;
-            display: flex;
-            justify-content: center; /* Yatayda ortala */
-            
-            /* --- DEĞİŞİKLİK BURADA: DİKEYDE AŞAĞI ALINDI --- */
-            align-items: flex-end; /* En alta hizala */
+            background-color: transparent; /* Arka plan şeffaf */
             height: 100vh;
-            padding-bottom: 100px; /* En alttan 100px yukarıda dursun */
-            box-sizing: border-box; /* Padding'in taşmasını engelle */
-            /* ----------------------------------------------- */
+            display: flex;
+            justify-content: center;
+            align-items: flex-end; /* En altta duracak */
+            padding-bottom: 80px; /* Alt sınırdan mesafe */
+            font-family: 'Chakra Petch', sans-serif;
+            overflow: hidden;
         }
 
         .var-container {
             position: relative;
-            width: 600px;
-            height: 150px;
+            display: flex;
+            align-items: center;
+            background: linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(20,20,20,0.95) 50%, rgba(0,0,0,0.9) 100%);
+            border-top: 3px solid #FFD700;
+            border-bottom: 3px solid #FFD700;
+            padding: 15px 40px;
+            border-radius: 50px; /* Kenarlar yuvarlak */
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            
+            /* GİRİŞ ANİMASYONU */
+            transform: translateY(200%); /* Başlangıçta aşağıda gizli */
+            animation: slideUp 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .icon-box {
+            position: relative;
+            width: 60px;
+            height: 60px;
             display: flex;
             align-items: center;
             justify-content: center;
-            animation: slideIn 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+            border: 2px solid #fff;
+            border-radius: 10px;
+            margin-right: 20px;
+            background: #000;
         }
 
-        .var-box {
-            position: relative;
-            background: rgba(0, 0, 0, 0.9); 
-            border: 2px solid #FFD700;
-            border-radius: 8px;
-            padding: 20px 40px;
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            box-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
-            overflow: hidden;
+        .rec-dot {
+            width: 15px;
+            height: 15px;
+            background-color: #e74c3c;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #e74c3c;
+            animation: blink 1s infinite;
         }
 
-        .var-logo {
-            font-size: 60px;
-            font-weight: 900;
-            color: #fff;
-            letter-spacing: 2px;
-            text-shadow: 2px 2px 0px #FFD700;
-            position: relative;
-            z-index: 2;
-        }
-
-        .var-details {
+        .text-content {
             display: flex;
             flex-direction: column;
-            border-left: 2px solid #555;
+            justify-content: center;
+            border-left: 2px solid #444;
             padding-left: 20px;
-            z-index: 2;
         }
 
-        .var-title {
+        .main-title {
             color: #FFD700;
-            font-size: 14px;
-            letter-spacing: 1px;
-            font-weight: 700;
-            text-transform: uppercase;
-            margin-bottom: 5px;
+            font-size: 36px;
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(255,215,0,0.5);
         }
 
-        .var-status {
+        .sub-title {
             color: #fff;
-            font-size: 24px;
-            font-weight: 700;
+            font-size: 18px;
+            font-weight: 400;
             text-transform: uppercase;
-            min-width: 250px;
+            letter-spacing: 4px;
+            margin-top: 5px;
         }
 
-        .scan-line {
+        /* Tarama Işığı Efekti */
+        .scan-light {
             position: absolute;
             top: 0;
             left: -100%;
             width: 50%;
             height: 100%;
-            background: linear-gradient(
-                90deg, 
-                transparent, 
-                rgba(255, 215, 0, 0.2), 
-                transparent
-            );
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
             transform: skewX(-20deg);
-            animation: scan 2s infinite linear;
-            z-index: 1;
+            animation: scan 3s infinite linear;
+            pointer-events: none;
         }
 
-        .rec-dot {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            width: 10px;
-            height: 10px;
-            background-color: red;
-            border-radius: 50%;
-            box-shadow: 0 0 5px red;
-            animation: blink 1s infinite;
-            z-index: 3;
+        @keyframes slideUp {
+            0% { transform: translateY(200%) scale(0.8); opacity: 0; }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
         }
 
-        @keyframes slideIn {
-            0% { transform: translateY(100%); opacity: 0; }
-            100% { transform: translateY(0); opacity: 1; }
+        @keyframes blink {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
         }
 
         @keyframes scan {
             0% { left: -100%; }
             100% { left: 200%; }
         }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
     </style>
 </head>
 <body>
 
-    <div class="var-container" id="varDisplay">
-        <div class="var-box">
+    <div class="var-container">
+        <div class="scan-light"></div>
+        
+        <div class="icon-box">
             <div class="rec-dot"></div>
-            <div class="scan-line"></div>
-            <div class="var-logo">VAR</div>
-            <div class="var-details">
-                <span class="var-title">Golden League Video Assist</span>
-                <span class="var-status" id="varText">POZİSYON İNCELENİYOR</span>
-            </div>
+        </div>
+
+        <div class="text-content">
+            <div class="main-title">VAR CHECK</div>
+            <div class="sub-title" id="reasonText">POZİSYON İNCELENİYOR</div>
         </div>
     </div>
 
@@ -147,8 +131,7 @@
         const params = new URLSearchParams(window.location.search);
         const reason = params.get('sebep');
         if(reason) {
-            const decodedReason = decodeURIComponent(reason);
-            document.getElementById('varText').innerText = decodedReason.toUpperCase();
+            document.getElementById('reasonText').innerText = decodeURIComponent(reason).toUpperCase();
         }
     </script>
 </body>
