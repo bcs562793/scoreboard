@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Golden League Reji (FULL)</title>
+    <title>Golden League Reji (Hybrid)</title>
     <style>
         /* GENEL TASARIM */
         body { background-color: #121212; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; text-align: center; }
         h2 { margin: 5px 0 15px; color: #ffb703; font-size: 18px; }
 
-        /* GİRİŞ EKRANI */
+        /* GİRİŞ EKRANI CSS */
         .login-container { display: flex; justify-content: center; align-items: center; height: 100vh; position: fixed; top: 0; left: 0; width: 100%; background: #000; z-index: 9999; }
         .login-box { background: #1a1a1a; padding: 40px; border: 2px solid #FFD700; border-radius: 10px; width: 300px; text-align: center; box-shadow: 0 0 30px rgba(255, 215, 0, 0.2); }
         .login-input { width: 100%; padding: 12px; margin: 10px 0; background: #333; border: 1px solid #555; color: white; border-radius: 5px; box-sizing: border-box; }
@@ -17,7 +17,7 @@
         .login-btn:hover { background: #e5c100; }
         #app-content { display: none; } /* Başlangıçta gizli */
 
-        /* REJİ PANELLERİ */
+        /* REJİ PANELLERİ CSS */
         .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-width: 600px; margin: 0 auto; padding-top: 40px; padding-bottom: 40px;}
         .full-width { grid-column: span 2; }
         .panel { background: #1e1e1e; padding: 10px; border-radius: 8px; border: 1px solid #333; }
@@ -70,6 +70,7 @@
                   <select id="yeniDepSecim"><option value="">Deplasman Seç...</option></select>
                 </div>
                 <button class="btn-turuncu" onclick="macKur()">MAÇI KUR VE SKORLARI SIFIRLA</button>
+                <p style="font-size:11px; color:#aaa; margin-top:5px;">*Bu butona basınca takımlar değişir, skor ve kartlar sıfırlanır.</p>
             </div>
 
             <div class="panel">
@@ -99,13 +100,13 @@
             <div class="panel full-width" style="border: 2px solid #FFD700; background-color: #2c2c2c;">
                 <h3 style="color: #FFD700; margin:0 0 10px 0;">🖥️ VAR SİSTEMİ</h3>
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px;">
-                    <button onclick="varKomut('GOL İNCELENİYOR')" style="background:#444; border:1px solid #FFD700; color:white;">⚽ GOL İNCELE</button>
-                    <button onclick="varKomut('PENALTI KONTROLÜ')" style="background:#444; border:1px solid #FFD700; color:white;">⚠️ PENALTI</button>
-                    <button onclick="varKomut('OFSAYT KONTROLÜ')" style="background:#444; border:1px solid #FFD700; color:white;">🚩 OFSAYT</button>
-                    <button onclick="varKomut('KART İNCELEMESİ')" style="background:#444; border:1px solid #FFD700; color:white;">🟥 KIRMIZI KART</button>
+                    <button onclick="varYayinla('GOL İNCELENİYOR')" style="background:#444; border:1px solid #FFD700; color:white;">⚽ GOL İNCELE</button>
+                    <button onclick="varYayinla('PENALTI KONTROLÜ')" style="background:#444; border:1px solid #FFD700; color:white;">⚠️ PENALTI</button>
+                    <button onclick="varYayinla('OFSAYT KONTROLÜ')" style="background:#444; border:1px solid #FFD700; color:white;">🚩 OFSAYT</button>
+                    <button onclick="varYayinla('KART İNCELEMESİ')" style="background:#444; border:1px solid #FFD700; color:white;">🟥 KIRMIZI KART</button>
                 </div>
                 <button onclick="varKapat()" class="btn-kirmizi">❌ VAR EKRANINI KAPAT</button>
-                <div id="durumText" style="color:#aaa; font-size:11px; margin-top:5px;">Sistem Beklemede</div>
+                <div id="varStatus" style="color:#aaa; font-size:11px; margin-top:5px;">Sistem Beklemede</div>
             </div>
 
             <div class="panel full-width" style="border: 2px solid #3498db;">
@@ -155,15 +156,15 @@
         <div id="status-bar">Bağlanıyor...</div>
     </div>
 
+    <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.9.min.js"></script>
+
     <script type="module">
         // ------------------------------------------------------------------
-        // A. FIREBASE ENTEGRASYONU (Giriş ve VAR)
+        // A. FIREBASE ENTEGRASYONU (SADECE GİRİŞ İÇİN)
         // ------------------------------------------------------------------
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // SENİN VERDİĞİN CONFIG BİLGİLERİ (Burası hazır)
         const firebaseConfig = {
             apiKey: "AIzaSyAKaT9TJVFLhCASNbdDUXlPJ-xxTzm3KYo",
             authDomain: "goldenligreji.firebaseapp.com",
@@ -176,31 +177,22 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getDatabase(app);
 
-        // Giriş Yap Fonksiyonu
+        // Giriş Yap
         window.girisYap = function() {
             const email = document.getElementById("email").value;
             const pass = document.getElementById("password").value;
             const hataMsg = document.getElementById("hataMesaji");
-
             hataMsg.style.display = "none";
 
             signInWithEmailAndPassword(auth, email, pass)
-                .then((userCredential) => {
-                    console.log("Giriş yapıldı:", userCredential.user.email);
-                })
-                .catch((error) => {
-                    hataMsg.innerText = "Hata: " + error.message;
-                    hataMsg.style.display = "block";
-                });
+                .then((userCredential) => { console.log("Giriş:", userCredential.user.email); })
+                .catch((error) => { hataMsg.innerText = "Hata: " + error.message; hataMsg.style.display = "block"; });
         }
 
-        // Çıkış Yap Fonksiyonu
+        // Çıkış Yap
         window.cikisYap = function() {
-            signOut(auth).then(() => {
-                location.reload();
-            });
+            signOut(auth).then(() => { location.reload(); });
         }
 
         // Oturum Kontrolü
@@ -208,7 +200,6 @@
             if (user) {
                 document.getElementById("login-screen").style.display = "none";
                 document.getElementById("app-content").style.display = "block";
-                // Giriş başarılıysa verileri çekmeye başla
                 window.fetchData();
                 setInterval(window.fetchData, 3000);
             } else {
@@ -217,29 +208,41 @@
             }
         });
 
-        // VAR Komutları (Firebase DB)
-        window.varKomut = function(sebep) {
-            set(ref(db, 'var_sistemi'), {
-                durum: "ACIK",
-                mesaj: sebep,
-                zaman: Date.now()
+
+        // ------------------------------------------------------------------
+        // B. PUBNUB ENTEGRASYONU (VAR SİSTEMİ İÇİN - ESKİ USÜL)
+        // ------------------------------------------------------------------
+        
+        // Bu kısım senin önceki sisteminle aynı, Overlay bozulmaz.
+        const pubnub = new PubNub({
+            publishKey: "pub-c-84a7bd29-50ba-405a-b10b-808f24c7150e",
+            subscribeKey: "sub-c-477e7b00-d093-4262-8c88-f69b58ba69e5",
+            uuid: "reji_control"
+        });
+
+        window.varYayinla = function(sebep) {
+            document.getElementById('varStatus').innerText = "YAYINDA: " + sebep;
+            document.getElementById('varStatus').style.color = "#00ff00";
+            
+            pubnub.publish({
+                channel: "golden_league_kanal",
+                message: { komut: "VAR_AC", detay: sebep }
             });
-            document.getElementById("durumText").innerText = "YAYINDA: " + sebep;
-            document.getElementById("durumText").style.color = "#00ff00";
         }
 
         window.varKapat = function() {
-            set(ref(db, 'var_sistemi'), {
-                durum: "KAPALI",
-                mesaj: "",
-                zaman: Date.now()
+            document.getElementById('varStatus').innerText = "KAPATILDI";
+            document.getElementById('varStatus').style.color = "#aaa";
+
+            pubnub.publish({
+                channel: "golden_league_kanal",
+                message: { komut: "VAR_KAPAT" }
             });
-            document.getElementById("durumText").innerText = "KAPATILDI";
-            document.getElementById("durumText").style.color = "#aaa";
         }
 
+
         // ------------------------------------------------------------------
-        // B. SKORBORD MANTIĞI (Google Apps Script - Eski Kodların)
+        // C. GOOGLE APPS SCRIPT (SKOR VE ANONS)
         // ------------------------------------------------------------------
         
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz0kGK_MugMYjCKcqPoZDVbU54RZC1tXPVEyJNcxnKMy2QKP19N7qxi1K0s6K0ZB68TMQ/exec";
@@ -251,28 +254,26 @@
         let mevcutMacAdi = "GoldenLeague_Mac";
         let matchStartTime = null;
 
-        // Başlangıç Ayarları
-        window.onload = function() {
-             let kayitli = localStorage.getItem("localMatchStart");
-             if (kayitli && kayitli !== "null") { matchStartTime = new Date(kayitli); }
-             let tvInput = document.getElementById("tvMesaj");
-             if(tvInput && tvInput.value === "") { tvInput.value = VARSAYILAN_MESAJ; }
-
-             let evSecim = document.getElementById("yeniEvSecim");
-             let depSecim = document.getElementById("yeniDepSecim");
-             if(evSecim) evSecim.addEventListener("change", window.macAdiGuncelle);
-             if(depSecim) depSecim.addEventListener("change", window.macAdiGuncelle);
-
-             // Saat Sayacı
-             setInterval(() => {
-                let sb = document.getElementById("status-bar");
-                if(sb && matchStartTime) {
-                    let dk = window.dakikaHesapla();
-                    sb.innerText = "⏱️ MAÇ SÜRESİ: " + dk;
-                    sb.style.color = "#00ff00";
-                }
-             }, 1000);
-        };
+        // Başlangıç (window.onload yerine buraya alıyoruz çünkü module scope)
+        // Sayfa yüklendiğinde çalışacaklar Auth kontrolünün içine taşındı
+        // Ama manuel tetikleme için:
+        let kayitli = localStorage.getItem("localMatchStart");
+        if (kayitli && kayitli !== "null") { matchStartTime = new Date(kayitli); }
+        let tvInput = document.getElementById("tvMesaj");
+        if(tvInput && tvInput.value === "") { tvInput.value = VARSAYILAN_MESAJ; }
+        let evSecim = document.getElementById("yeniEvSecim");
+        let depSecim = document.getElementById("yeniDepSecim");
+        if(evSecim) evSecim.addEventListener("change", window.macAdiGuncelle);
+        if(depSecim) depSecim.addEventListener("change", window.macAdiGuncelle);
+        
+        setInterval(() => {
+           let sb = document.getElementById("status-bar");
+           if(sb && matchStartTime) {
+               let dk = window.dakikaHesapla();
+               sb.innerText = "⏱️ MAÇ SÜRESİ: " + dk;
+               sb.style.color = "#00ff00";
+           }
+        }, 1000);
 
         window.fetchData = function() {
           fetch(SCRIPT_URL + "?t=" + new Date().getTime())
