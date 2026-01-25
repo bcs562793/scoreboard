@@ -463,36 +463,46 @@
         setInterval(runTimer, 250);
     </script>
 
-    <iframe id="varFrame" 
-    style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; border:none; z-index:9999; pointer-events:none;">
-</iframe>
 
 <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.9.min.js"></script>
-<script>
-    // SENİN KEYLERİN İLE BAĞLANTI
-    const pubnub = new PubNub({
-        publishKey: "pub-c-84a7bd29-50ba-405a-b10b-808f24c7150e",
-        subscribeKey: "sub-c-477e7b00-d093-4262-8c88-f69b58ba69e5",
-        uuid: "scoreboard_screen"
-    });
+<iframe id="varFrame" style="display:none; position:absolute; top:140px; left:20px; width:400px; height:200px; border:none; z-index:9999;"></iframe>
 
-    pubnub.subscribe({ channels: ['golden_league_kanal'] });
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    pubnub.addListener({
-        message: function(event) {
-            const cmd = event.message;
-            const frame = document.getElementById('varFrame');
-            
-            // BURAYA KENDİ GITHUB LİNKİNİ YAPIŞTIR
-            const baseURL = "https://onlinescoreboard.store/var.html"; 
+    // AYNI FIREBASE CONFIG'İ BURAYA DA YAPIŞTIR
+    const firebaseConfig = {
+    apiKey: "AIzaSyAKaT9TJVFLhCASNbdDUXlPJ-xxTzm3KYo",
+    authDomain: "goldenligreji.firebaseapp.com",
+    projectId: "goldenligreji",
+    storageBucket: "goldenligreji.firebasestorage.app",
+    messagingSenderId: "806630130245",
+    appId: "1:806630130245:web:e56a0567e8f969ffc7992c",
+    measurementId: "G-HDZJEYM7P7"
+    };
 
-            if (cmd.komut === "VAR_AC") {
-                frame.src = baseURL + "?sebep=" + encodeURIComponent(cmd.detay);
-                frame.style.display = 'block';
-            } else if (cmd.komut === "VAR_KAPAT") {
-                frame.style.display = 'none';
-                frame.src = ""; // Animasyonu sıfırla
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Veritabanını Dinle
+    const varRef = ref(db, 'var_sistemi');
+    
+    onValue(varRef, (snapshot) => {
+        const data = snapshot.val();
+        const frame = document.getElementById("varFrame");
+        // KENDİ GITHUB LINKIN:
+        const baseURL = "https://kullaniciadi.github.io/repo/var.html"; 
+
+        if (data && data.durum === "ACIK") {
+            // Sadece yeni bir komutsa veya kapalıyken açıldıysa src değiştir (Titreşimi önler)
+            if(frame.style.display === "none" || !frame.src.includes(encodeURIComponent(data.mesaj))) {
+                 frame.src = baseURL + "?sebep=" + encodeURIComponent(data.mesaj);
+                 frame.style.display = "block";
             }
+        } else {
+            frame.style.display = "none";
+            frame.src = ""; // Sıfırla
         }
     });
 </script>
