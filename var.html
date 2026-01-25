@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Golden League VAR Overlay (Bottom)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;700&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: transparent; 
+            overflow: hidden;
+            font-family: 'Chakra Petch', sans-serif;
+            display: flex;
+            justify-content: center; /* Yatayda ortala */
+            
+            /* --- DEĞİŞİKLİK BURADA: DİKEYDE AŞAĞI ALINDI --- */
+            align-items: flex-end; /* En alta hizala */
+            height: 100vh;
+            padding-bottom: 100px; /* En alttan 100px yukarıda dursun */
+            box-sizing: border-box; /* Padding'in taşmasını engelle */
+            /* ----------------------------------------------- */
+        }
+
+        .var-container {
+            position: relative;
+            width: 600px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: slideIn 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+        }
+
+        .var-box {
+            position: relative;
+            background: rgba(0, 0, 0, 0.9); 
+            border: 2px solid #FFD700;
+            border-radius: 8px;
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.4);
+            overflow: hidden;
+        }
+
+        .var-logo {
+            font-size: 60px;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 0px #FFD700;
+            position: relative;
+            z-index: 2;
+        }
+
+        .var-details {
+            display: flex;
+            flex-direction: column;
+            border-left: 2px solid #555;
+            padding-left: 20px;
+            z-index: 2;
+        }
+
+        .var-title {
+            color: #FFD700;
+            font-size: 14px;
+            letter-spacing: 1px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .var-status {
+            color: #fff;
+            font-size: 24px;
+            font-weight: 700;
+            text-transform: uppercase;
+            min-width: 250px;
+        }
+
+        .scan-line {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(
+                90deg, 
+                transparent, 
+                rgba(255, 215, 0, 0.2), 
+                transparent
+            );
+            transform: skewX(-20deg);
+            animation: scan 2s infinite linear;
+            z-index: 1;
+        }
+
+        .rec-dot {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 10px;
+            height: 10px;
+            background-color: red;
+            border-radius: 50%;
+            box-shadow: 0 0 5px red;
+            animation: blink 1s infinite;
+            z-index: 3;
+        }
+
+        @keyframes slideIn {
+            0% { transform: translateY(100%); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 200%; }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="var-container" id="varDisplay">
+        <div class="var-box">
+            <div class="rec-dot"></div>
+            <div class="scan-line"></div>
+            <div class="var-logo">VAR</div>
+            <div class="var-details">
+                <span class="var-title">Golden League Video Assist</span>
+                <span class="var-status" id="varText">POZİSYON İNCELENİYOR</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const reason = params.get('sebep');
+        if(reason) {
+            const decodedReason = decodeURIComponent(reason);
+            document.getElementById('varText').innerText = decodedReason.toUpperCase();
+        }
+    </script>
+</body>
+</html>
