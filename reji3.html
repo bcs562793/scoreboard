@@ -97,6 +97,31 @@
                  <button class="btn-gri" onclick="send('kartSifirla')">SADECE KARTLARI SIFIRLA</button>
             </div>
 
+            <div class="panel full-width" style="border: 2px solid #3498db;">
+                <h3>📢 ALT BANT (GOL/KART YAZISI)</h3>
+                <div style="display:flex; gap:5px;">
+                   <select id="takimSecimi" onchange="oyuncuListesiniGuncelle()">
+                     <option value="">Takım...</option>
+                     <option value="ev">EV SAHİBİ</option>
+                     <option value="dep">DEPLASMAN</option>
+                   </select>
+                   <select id="oyuncuSecimi">
+                     <option value="">Oyuncu...</option>
+                   </select>
+                </div>
+                <select id="olayTipi">
+                  <option value="GOL">GOL</option>
+                  <option value="Sarı Kart">🟨 SARI KART</option>
+                  <option value="Kırmızı Kart">🟥 KIRMIZI KART</option>
+                  <option value="OYUNCU DEĞİŞİKLİĞİ">🔄 OYUNCU DEĞİŞİKLİĞİ</option>
+                </select>
+                <div style="display:flex; gap:5px; margin-top:5px;">
+                  <button class="btn-mavi" onclick="listedenYayinla()">Ekrana Yansıt</button>
+                  <button class="btn-gri" onclick="send('anonsTemizle')">Temizle</button>
+                </div>
+            </div>
+
+
             <div class="panel full-width" style="border: 2px solid #FFD700; background-color: #2c2c2c;">
                 <h3 style="color: #FFD700; margin:0 0 10px 0;">🖥️ VAR SİSTEMİ</h3>
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px;">
@@ -132,30 +157,7 @@
                 </div>
             </div>
 
-            <div class="panel full-width" style="border: 2px solid #3498db;">
-                <h3>📢 ALT BANT (GOL/KART YAZISI)</h3>
-                <div style="display:flex; gap:5px;">
-                   <select id="takimSecimi" onchange="oyuncuListesiniGuncelle()">
-                     <option value="">Takım...</option>
-                     <option value="ev">EV SAHİBİ</option>
-                     <option value="dep">DEPLASMAN</option>
-                   </select>
-                   <select id="oyuncuSecimi">
-                     <option value="">Oyuncu...</option>
-                   </select>
-                </div>
-                <select id="olayTipi">
-                  <option value="GOL">GOL</option>
-                  <option value="Sarı Kart">🟨 SARI KART</option>
-                  <option value="Kırmızı Kart">🟥 KIRMIZI KART</option>
-                  <option value="OYUNCU DEĞİŞİKLİĞİ">🔄 OYUNCU DEĞİŞİKLİĞİ</option>
-                </select>
-                <div style="display:flex; gap:5px; margin-top:5px;">
-                  <button class="btn-mavi" onclick="listedenYayinla()">Ekrana Yansıt</button>
-                  <button class="btn-gri" onclick="send('anonsTemizle')">Temizle</button>
-                </div>
-            </div>
-
+            
             <div class="panel full-width">
                 <button class="btn-turuncu" onclick="golSesiCal()">🔊 GOOOOL SESİ</button>
                 <audio id="audioPlayer" src="https://files.catbox.moe/kendi_dosyan.mp3"></audio>
