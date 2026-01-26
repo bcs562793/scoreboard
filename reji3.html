@@ -239,6 +239,93 @@
         }
 
         // ------------------------------------------------------------------
+        // D. PENALTI SİSTEMİ (PUBNUB İLE)
+        // ------------------------------------------------------------------
+        
+        // Skorları ve durumları hafızada tutmak için değişkenler
+        let pEvSkor = 0;
+        let pDepSkor = 0;
+        let pEvDurum = []; // 1=Gol, 0=Kaçtı
+        let pDepDurum = [];
+
+        // 1. Ekrana Yansıt Butonu
+        window.penaltiAc = function() {
+            // Takım isimlerini yukarıdaki seçim kutusundan al
+            let ev = document.getElementById("yeniEvSecim");
+            let dep = document.getElementById("yeniDepSecim");
+            
+            // Eğer seçim yapılmamışsa varsayılan isimleri kullan
+            let evAd = (ev.selectedIndex > 0) ? ev.options[ev.selectedIndex].text : "EV SAHİBİ";
+            let depAd = (dep.selectedIndex > 0) ? dep.options[dep.selectedIndex].text : "DEPLASMAN";
+
+            // PubNub'a "Açıl" emri gönder
+            pubnub.publish({
+                channel: "golden_league_penalti",
+                message: { islem: "AC", ev: evAd, dep: depAd }
+            });
+            
+            // Mevcut durumu da (varsa) hemen peşinden gönder ki senkron olsun
+            penaltiGuncelle();
+        }
+
+        // 2. Kapat Butonu
+        window.penaltiKapat = function() {
+            pubnub.publish({
+                channel: "golden_league_penalti",
+                message: { islem: "KAPAT" }
+            });
+        }
+
+        // 3. Sıfırla Butonu
+        window.penaltiSifirla = function() {
+            // Hafızayı temizle
+            pEvSkor = 0; pDepSkor = 0;
+            pEvDurum = []; pDepDurum = [];
+            
+            // Reji ekranındaki sayıları sıfırla
+            document.getElementById("evPenaltiSkor").innerText = 0;
+            document.getElementById("depPenaltiSkor").innerText = 0;
+            
+            // Ekrana "Her şeyi sil" emri gönder
+            pubnub.publish({
+                channel: "golden_league_penalti",
+                message: { islem: "SIFIRLA" }
+            });
+        }
+
+        // 4. Gol / Kaçtı Butonları
+        window.penaltiEkle = function(takim, sonuc) {
+            // sonuc: 1 (Gol), 0 (Kaçtı)
+            
+            if(takim === 'ev') {
+                pEvDurum.push(sonuc);
+                if(sonuc === 1) pEvSkor++;
+                document.getElementById("evPenaltiSkor").innerText = pEvSkor;
+            } else {
+                pDepDurum.push(sonuc);
+                if(sonuc === 1) pDepSkor++;
+                document.getElementById("depPenaltiSkor").innerText = pDepSkor;
+            }
+            
+            // Yeni durumu ekrana gönder
+            penaltiGuncelle();
+        }
+
+        // Yardımcı Fonksiyon: Durumu Topluca Gönderir
+        function penaltiGuncelle() {
+            pubnub.publish({
+                channel: "golden_league_penalti",
+                message: { 
+                    islem: "GUNCELLE",
+                    evSkor: pEvSkor,
+                    depSkor: pDepSkor,
+                    evDurum: pEvDurum,
+                    depDurum: pDepDurum
+                }
+            });
+        }
+
+        // ------------------------------------------------------------------
         // B. SKORBORD MANTIĞI (Google Apps Script - Eski Kodların)
         // ------------------------------------------------------------------
         
