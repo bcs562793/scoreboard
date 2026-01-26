@@ -2,168 +2,237 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Golden League Penaltılar</title>
+    <title>Golden League Penalty Final Fix</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
 
         body {
-            background-color: transparent;
             margin: 0; padding: 0;
+            background-color: transparent; 
             height: 100vh;
+            width: 100vw;
             display: flex;
             justify-content: center;
-            align-items: flex-end; /* En altta duracak */
-            padding-bottom: 50px;
-            font-family: 'Chakra Petch', sans-serif;
+            align-items: flex-end;
+            padding-bottom: 60px;
+            font-family: 'Montserrat', sans-serif;
             overflow: hidden;
         }
 
-        .penalty-board {
+        /* ANA KAPSAYICI */
+        .golden-board {
+            position: relative;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            background: rgba(10, 10, 10, 0.95);
-            border: 2px solid #FFD700;
-            border-radius: 15px;
-            padding: 15px 30px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.8);
-            transform: translateY(200px); /* Başlangıçta gizli */
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            gap: 20px;
+            width: 1100px; /* Genişliği biraz daha açtık rahatlasın */
+            transform: translateY(150%);
+            transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
         }
 
-        .show { transform: translateY(0); }
+        .golden-board.show { transform: translateY(0); }
 
-        .team-section {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+        /* BAŞLIK */
+        .header-bar {
+            background: linear-gradient(90deg, transparent 0%, rgba(20,20,20,0.9) 20%, #FFD700 50%, rgba(20,20,20,0.9) 80%, transparent 100%);
+            padding: 8px 0; width: 60%; text-align: center;
+            display: flex; justify-content: center;
+            clip-path: polygon(15% 0, 85% 0, 100% 100%, 0% 100%);
+            margin-bottom: -4px; z-index: 2;
+        }
+
+        .header-text {
+            color: #000; font-weight: 900; font-size: 16px; letter-spacing: 2px;
+            text-transform: uppercase;
+            background: linear-gradient(to bottom, #6e4f00, #000);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0px 1px 1px rgba(255, 215, 0, 0.3);
+        }
+
+        /* GÖVDE */
+        .main-bar {
+            display: flex; align-items: center; justify-content: center; 
+            width: 100%; height: 90px;
+            background: linear-gradient(180deg, #1a1a1a 0%, #000000 100%);
+            border: 3px solid #FFD700; border-radius: 50px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8), inset 0 0 30px rgba(255, 215, 0, 0.1);
+            overflow: hidden; position: relative;
+        }
+
+        .star-pattern {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                radial-gradient(rgba(255, 215, 0, 0.4), rgba(255, 215, 0, 0.1) 2px, transparent 3px),
+                radial-gradient(rgba(255, 215, 0, 0.4), rgba(255, 215, 0, 0.1) 1px, transparent 2px);
+            background-size: 450px 450px, 250px 250px; background-position: 0 0, 130px 270px;
+            opacity: 0.4; animation: starMove 80s linear infinite; mix-blend-mode: screen;
+        }
+        @keyframes starMove { from { background-position: 0 0, 130px 270px; } to { background-position: 450px 450px, 380px 520px; } }
+
+        /* --- DÜZELTME BURADA: TAKIM KUTULARI --- */
+        .team-box {
+            flex: 1; display: flex; align-items: center;
+            z-index: 3; min-width: 0;
+            height: 100%;
+        }
+        
+        /* SOL TAKIM AYARLARI */
+        .team-left { 
+            justify-content: flex-end; /* Sağa (skora) yasla */
+            padding-left: 60px; /* <--- SOL TARAFA TAMPON BÖLGE (Yazı kesilmesin diye) */
+            padding-right: 15px;
+        }
+        
+        /* SAĞ TAKIM AYARLARI */
+        .team-right { 
+            justify-content: flex-start; /* Sola (skora) yasla */
+            padding-right: 60px; /* <--- SAĞ TARAFA TAMPON BÖLGE */
+            padding-left: 15px;
         }
 
         .team-name {
             color: white;
-            font-size: 24px;
-            font-weight: 700;
+            font-size: 32px; /* Başlangıç boyutu */
+            font-weight: 800;
             text-transform: uppercase;
-            width: 200px;
-            text-align: center;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            /* text-overflow sildik, JS halledecek */
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            transition: font-size 0.2s ease;
         }
 
-        .dots-container {
-            display: flex;
-            gap: 8px;
+        /* SKOR */
+        .score-circle {
+            flex: 0 0 110px; height: 110px;
+            background: radial-gradient(circle at 30% 30%, #FFD700 0%, #FDB931 40%, #996300 100%);
+            border: 5px solid #000; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 42px; font-weight: 900; color: #000;
+            z-index: 4;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.7), 0 0 15px rgba(255, 215, 0, 0.6);
+            margin: 0 5px; position: relative; top: -5px;
+        }
+
+        /* NOKTALAR */
+        .dots-area {
+            display: flex; gap: 8px;
+            flex-shrink: 0; /* Asla küçülme */
         }
 
         .dot {
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            border: 2px solid #444;
-            background: #222;
-            transition: 0.3s all;
+            width: 20px; height: 20px;
+            border-radius: 50%; border: 2px solid #555;
+            background: rgba(0,0,0,0.3); transition: all 0.4s;
         }
-
-        /* GOL (YEŞİL) */
-        .dot.goal {
-            background: #2ecc71;
-            border-color: #2ecc71;
-            box-shadow: 0 0 10px #2ecc71;
-        }
-
-        /* KAÇTI (KIRMIZI) */
-        .dot.miss {
-            background: #e74c3c;
-            border-color: #e74c3c;
-            box-shadow: 0 0 10px #e74c3c;
-            position: relative;
-        }
-        /* Çarpı işareti için */
-        .dot.miss::after {
-            content: "X";
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            color: white; font-weight: bold; font-size: 14px;
-        }
-
-        .score-box {
-            background: #FFD700;
-            color: #000;
-            font-size: 32px;
-            font-weight: 900;
-            padding: 5px 20px;
-            border-radius: 5px;
-            min-width: 80px;
-            text-align: center;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
+        .dot.goal { background: #2ecc71; border-color: #FFD700; box-shadow: 0 0 15px #2ecc71, 0 0 5px #FFD700; transform: scale(1.2); }
+        .dot.miss { background: #e74c3c; border-color: #FFD700; box-shadow: 0 0 10px #e74c3c; position: relative; }
+        .dot.miss::after { content: "✕"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-weight: 900; font-size: 14px; }
 
     </style>
 </head>
 <body>
 
-    <div class="penalty-board" id="board">
-        <div class="team-section" style="flex-direction: row-reverse;"> <div class="dots-container" id="evDots">
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
+    <div class="golden-board" id="mainBoard">
+        <div class="header-bar"><span class="header-text">PENALTI ATIŞLARI</span></div>
+
+        <div class="main-bar">
+            <div class="star-pattern"></div>
+
+            <div class="team-box team-left">
+                <div class="team-name" id="evName">YÜKLENİYOR...</div>
+                <div class="dots-area" id="evDots" style="margin-left: 15px;">
+                    <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                </div>
             </div>
-            <div class="team-name" id="evName">EV SAHİBİ</div>
-        </div>
 
-        <div class="score-box">
-            <span id="evScore">0</span> - <span id="depScore">0</span>
-        </div>
+            <div class="score-circle">
+                <span id="evScore">0</span>-<span id="depScore">0</span>
+            </div>
 
-        <div class="team-section">
-            <div class="team-name" id="depName">DEPLASMAN</div>
-            <div class="dots-container" id="depDots">
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
-                <div class="dot"></div>
+            <div class="team-box team-right">
+                <div class="dots-area" id="depDots" style="margin-right: 15px;">
+                    <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+                </div>
+                <div class="team-name" id="depName">YÜKLENİYOR...</div>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.29.9.min.js"></script>
     <script>
+        const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbyHWYovjy3jKp6Slj21t-3PfqX01u1vehireRC7MEjTsf6JHqbJRfD5r6iy73_ymgC9tQ/exec";
+
+        // --- GÜÇLENDİRİLMİŞ SIĞDIRMA FONKSİYONU ---
+        function fitText(elementId) {
+            const el = document.getElementById(elementId);
+            const parent = el.parentElement;
+            
+            // 1. Önce fontu maksimum yap
+            let size = 32; 
+            el.style.fontSize = size + 'px'; 
+            
+            // 2. Taşma var mı diye kontrol et (scrollWidth içeriğin gerçek genişliğidir)
+            // parent.clientWidth'ten noktaların kapladığı alanı (yaklaşık 150px) düşüyoruz kabaca
+            const dotsWidth = 160; 
+            const availableSpace = parent.clientWidth - dotsWidth;
+
+            // 3. Döngü ile sığana kadar küçült
+            while (el.scrollWidth > availableSpace && size > 12) {
+                size--;
+                el.style.fontSize = size + 'px';
+            }
+        }
+
+        function takimIsimleriniGuncelle() {
+            fetch(SHEET_API_URL)
+            .then(response => response.json())
+            .then(data => {
+                if(data && data.length > 0) {
+                    const evIsim = data[0][0]; // A1
+                    const depIsim = data[0][3]; // D1
+                    
+                    if(evIsim) {
+                        document.getElementById("evName").innerText = evIsim;
+                        // Yazı değiştikten hemen sonra, tarayıcı render etsin diye minik gecikme
+                        setTimeout(() => fitText("evName"), 100); 
+                    }
+                    if(depIsim) {
+                        document.getElementById("depName").innerText = depIsim;
+                        setTimeout(() => fitText("depName"), 100);
+                    }
+                }
+            })
+            .catch(error => console.error("Hata:", error));
+        }
+
+        takimIsimleriniGuncelle();
+        setInterval(takimIsimleriniGuncelle, 10000);
+
         const pubnub = new PubNub({
             publishKey: "pub-c-84a7bd29-50ba-405a-b10b-808f24c7150e",
             subscribeKey: "sub-c-477e7b00-d093-4262-8c88-f69b58ba69e5",
-            uuid: "penalty_overlay"
+            uuid: "golden_penalty_overlay_v4"
         });
 
         pubnub.subscribe({ channels: ['golden_league_penalti'] });
 
-        let evIndex = 0;
-        let depIndex = 0;
-
         pubnub.addListener({
             message: function(event) {
                 const cmd = event.message;
-                const board = document.getElementById('board');
+                const board = document.getElementById('mainBoard');
 
                 if (cmd.islem === "AC") {
                     board.classList.add("show");
-                    if(cmd.ev) document.getElementById("evName").innerText = cmd.ev;
-                    if(cmd.dep) document.getElementById("depName").innerText = cmd.dep;
+                    takimIsimleriniGuncelle(); 
                 } 
                 else if (cmd.islem === "KAPAT") {
                     board.classList.remove("show");
                 }
                 else if (cmd.islem === "GUNCELLE") {
-                    // Skorları Yaz
                     document.getElementById("evScore").innerText = cmd.evSkor;
                     document.getElementById("depScore").innerText = cmd.depSkor;
-
-                    // Noktaları Boya (EV)
                     updateDots("evDots", cmd.evDurum);
-                    // Noktaları Boya (DEP)
                     updateDots("depDots", cmd.depDurum);
                 }
                 else if (cmd.islem === "SIFIRLA") {
@@ -174,12 +243,9 @@
 
         function updateDots(containerId, durumDizisi) {
             const dots = document.getElementById(containerId).children;
-            // Önce hepsini temizle
             for(let d of dots) d.className = "dot";
-            
-            // Sonra duruma göre boya
             durumDizisi.forEach((durum, i) => {
-                if(i < 5) { // Sadece ilk 5'li (Uzatma olursa kod geliştirilmeli)
+                if(i < 5) {
                     if(durum === 1) dots[i].classList.add("goal");
                     if(durum === 0) dots[i].classList.add("miss");
                 }
