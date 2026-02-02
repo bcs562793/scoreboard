@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Golden League - Skorlu Sistem</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Roboto+Condensed:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #222;
+            font-family: 'Roboto Condensed', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .controls {
+            position: fixed;
+            top: 10px;
+            z-index: 9999;
+            background: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: flex;
+            gap: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        button, select {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #preview-wrapper {
+            margin-top: 60px;
+            transform: scale(0.45); 
+            transform-origin: top center;
+            border: 5px solid #fff;
+            box-shadow: 0 0 50px #000;
+        }
+
+        #capture-area {
+            width: 1080px;
+            height: 1350px;
+            position: relative;
+            background: #0f3d24 url('https://i.hizliresim.com/m4yy612.png') center/cover;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .content {
+            z-index: 2;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 50px;
+        }
+
+        .main-title {
+            font-family: 'Anton', sans-serif;
+            font-size: 100px;
+            line-height: 0.9;
+            text-align: center;
+            color: #FFD700;
+            text-transform: uppercase;
+            text-shadow: 4px 4px 0px #000;
+            margin-bottom: 10px;
+        }
+
+        .sub-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 40px;
+            color: #fff;
+            text-shadow: 2px 2px 0 #800080;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+
+        .week-bar {
+            background: #FFD700;
+            color: #000;
+            font-family: 'Anton', sans-serif;
+            font-size: 25px;
+            padding: 10px 80px;
+            border-radius: 5px;
+            transform: skewX(-10deg);
+            border: 2px solid #000;
+            margin-bottom: 30px;
+        }
+
+        .match-container {
+            width: 950px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .match-row {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .info-bar {
+            background: #FFC107;
+            color: #000;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 5px 40px;
+            border-radius: 20px;
+            margin-bottom: -15px; 
+            z-index: 50; 
+            position: relative;
+            text-transform: uppercase;
+            border: 1px solid #d4af37;
+        }
+
+        .match-card {
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(90deg, #d4af37 0%, #fce288 50%, #d4af37 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-sizing: border-box;
+            border: 2px solid #fff; 
+            position: relative;
+            z-index: 1;
+        }
+
+        .team-name {
+            flex: 1;
+            font-family: 'Anton', sans-serif;
+            font-size: 42px;
+            color: #1a1a1a;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .home { text-align: left; }
+        .away { text-align: right; }
+
+        .team-logo {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin: 0 10px;
+        }
+
+        /* --- VS ROZETİ --- */
+        .vs-badge {
+            width: 80px;
+            height: 60px;
+            background: linear-gradient(180deg, #8B4513, #5a2d0c);
+            color: #FFD700;
+            border: 2px solid #FFD700;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Anton', sans-serif;
+            font-size: 40px;
+            z-index: 60;
+            position: relative;
+            margin: 0 20px;
+        }
+
+        /* --- YENİ SKOR ROZETİ --- */
+        .score-badge {
+            min-width: 100px;
+            height: 65px;
+            background: #222; /* Koyu zemin */
+            color: #fff;
+            border: 3px solid #FFD700; /* Altın çerçeve */
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Anton', sans-serif;
+            font-size: 45px;
+            z-index: 60;
+            position: relative;
+            margin: 0 20px;
+            padding: 0 15px;
+            letter-spacing: 2px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 30px;
+            color: #fff;
+            font-size: 30px;
+            font-family: 'Bebas Neue', sans-serif;
+            text-shadow: 2px 2px 4px #000;
+            letter-spacing: 2px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <select id="daySelector">
+            <option value="cumartesi">Cumartesi</option>
+            <option value="pazar">Pazar</option>
+        </select>
+        <button onclick="loadSelectedDay()">🔄 Yenile</button>
+        <button style="background:gold;" onclick="downloadExactImage()">📸 İNDİR</button>
+    </div>
+
+    <div id="preview-wrapper">
+        <div id="capture-area">
+            <div class="content">
+                <div class="main-title">GOLDEN<br>LEAGUE</div>
+                <div class="sub-title">GAZİANTEP PREMIER LİGİ</div>
+                
+                <div class="week-bar" id="week-display">YÜKLENİYOR...</div>
+
+                <div class="match-container" id="matches-wrapper">
+                    </div>
+
+                <div class="footer">goldenlig.com</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // LİNKİNİZ BURAYA
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz18xnD9dh4ALzTRwqhj7BXZfdU73dr4ySiTDMLnT_-wEYNafuaU7HY1s0sp9O3Vw/exec'; 
+
+        async function loadSelectedDay() {
+            const day = document.getElementById('daySelector').value;
+            const container = document.getElementById('matches-wrapper');
+            container.innerHTML = '<div style="color:white; font-size:40px; text-align:center;">Veriler Geliyor...</div>';
+
+            try {
+                const response = await fetch(`${APPS_SCRIPT_URL}?day=${day}`);
+                const data = await response.json();
+
+                if(data.length > 0 && data[0].weekName) {
+                    document.getElementById('week-display').innerText = data[0].weekName;
+                }
+
+                renderMatches(data.slice(0, 6)); 
+
+            } catch (error) {
+                container.innerHTML = '<div style="color:red; font-size:40px; text-align:center;">HATA! Scripti güncelledin mi?</div>';
+            }
+        }
+
+        function renderMatches(matches) {
+            const container = document.getElementById('matches-wrapper');
+            container.innerHTML = '';
+            
+            matches.forEach(match => {
+                const formattedDate = formatDateTime(match.date);
+                
+                // --- SKOR KONTROLÜ ---
+                // Eğer skorlar boş değilse (maç oynanmışsa), Skor Göster.
+                // Boşsa, VS göster.
+                let centerBadgeHtml = '';
+                // Not: Apps Script'te boş hücreler bazen boş string "" bazen null gelir.
+                if (match.homeScore !== "" && match.awayScore !== "" && match.homeScore != null) {
+                    centerBadgeHtml = `<div class="score-badge">${match.homeScore} - ${match.awayScore}</div>`;
+                } else {
+                    centerBadgeHtml = `<div class="vs-badge">VS</div>`;
+                }
+
+                const html = `
+                    <div class="match-row">
+                        <div class="info-bar">${formattedDate} ${match.pitch}</div>
+                        <div class="match-card">
+                            <img src="${match.homeLogo}" class="team-logo" crossorigin="anonymous" onerror="this.style.display='none'">
+                            
+                            <div class="team-name home">${match.home}</div>
+                            
+                            ${centerBadgeHtml}
+                            
+                            <div class="team-name away">${match.away}</div>
+                            
+                            <img src="${match.awayLogo}" class="team-logo" crossorigin="anonymous" onerror="this.style.display='none'">
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += html;
+            });
+        }
+
+        function formatDateTime(isoString) {
+            if (!isoString) return "";
+            if (!isoString.toString().includes('T')) return isoString;
+
+            try {
+                var date = new Date(isoString);
+                if (isNaN(date.getTime())) return isoString;
+
+                var day = date.getDate().toString().padStart(2, '0');
+                var month = (date.getMonth() + 1).toString().padStart(2, '0');
+                var year = date.getFullYear();
+                var hour = date.getHours().toString().padStart(2, '0');
+                var min = date.getMinutes().toString().padStart(2, '0');
+
+                return day + '.' + month + '.' + year + ' ' + hour + ':' + min;
+            } catch (e) {
+                return isoString;
+            }
+        }
+
+        function downloadExactImage() {
+            const btn = document.querySelector('button[style*="gold"]');
+            btn.innerText = "⏳ İŞLENİYOR...";
+
+            const originalElement = document.getElementById('capture-area');
+            const clone = originalElement.cloneNode(true);
+
+            clone.style.position = 'fixed';
+            clone.style.top = '0';
+            clone.style.left = '0';
+            clone.style.zIndex = '-9999';
+            clone.style.margin = '0';
+            clone.style.transform = 'none'; 
+            clone.style.width = '1080px';
+            clone.style.height = '1350px';
+            
+            document.body.appendChild(clone);
+
+            const images = clone.getElementsByTagName("img");
+            const promises = [];
+            for (let i = 0; i < images.length; i++) {
+                promises.push(new Promise((resolve) => {
+                    if (images[i].complete) resolve();
+                    else {
+                        images[i].onload = resolve;
+                        images[i].onerror = resolve; 
+                    }
+                }));
+            }
+
+            Promise.all(promises).then(() => {
+                document.fonts.ready.then(function () {
+                    html2canvas(clone, {
+                        scale: 1, 
+                        useCORS: true,
+                        allowTaint: true,
+                        backgroundColor: null
+                    }).then(canvas => {
+                        const link = document.createElement('a');
+                        link.download = 'Golden-League-Sonuc.png';
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                        
+                        document.body.removeChild(clone);
+                        btn.innerText = "📸 İNDİR";
+                    });
+                });
+            });
+        }
+        
+        window.onload = loadSelectedDay;
+    </script>
+</body>
+</html>
