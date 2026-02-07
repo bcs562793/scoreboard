@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -270,6 +269,9 @@
             </div>
         </div>
     </div>
+
+    <!-- GOL SESİ AUDIO ELEMENTİ - SCOREBOARD'DA ÇALACAK -->
+    <audio id="goalAudioPlayer" src="https://files.catbox.moe/i4a4zf.mp3" preload="auto"></audio>
   
     <script>
         // =========================================================
@@ -286,6 +288,17 @@
         let animationTimeout; 
         let animasyonKilidi = false;
         let isFirstLoad = true; // Sayfa ilk açıldığında animasyonu engellemek için kilit
+
+        // --- GOL SESİ ÇALMA FONKSİYONU ---
+        function playGoalSound() {
+            const audio = document.getElementById('goalAudioPlayer');
+            if (audio) {
+                audio.currentTime = 0; // Başa sar
+                audio.play().catch(function(error) {
+                    console.log("Ses çalma hatası:", error);
+                });
+            }
+        }
 
         // --- ANA VERİ ÇEKME DÖNGÜSÜ ---
         async function updateData() {
@@ -533,12 +546,13 @@
             } else if (cmd.komut === "VAR_KAPAT") {
                 frame.style.display = 'none';
                 frame.src = ""; // Animasyonu sıfırla
+            } else if (cmd.komut === "GOL_SESI") {
+                // KUMANDADAN GOL SESİ KOMUTU GELDİĞİNDE SESİ ÇAL
+                playGoalSound();
             }
         }
     });
 </script>
-   <iframe src="https://onlinescoreboard.store/penalti.html" 
-    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; z-index: 99999; background-color: transparent; pointer-events: none;">
-</iframe>
+    
 </body>
 </html>
