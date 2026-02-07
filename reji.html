@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Golden League Reji (Hybrid)</title>
+    <title>Golden League Reji (ULTIMATE)</title>
     <style>
         /* GENEL TASARIM */
         body { background-color: #121212; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; text-align: center; }
@@ -97,18 +97,6 @@
                  <button class="btn-gri" onclick="send('kartSifirla')">SADECE KARTLARI SIFIRLA</button>
             </div>
 
-            <div class="panel full-width" style="border: 2px solid #FFD700; background-color: #2c2c2c;">
-                <h3 style="color: #FFD700; margin:0 0 10px 0;">🖥️ VAR SİSTEMİ</h3>
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px;">
-                    <button onclick="varYayinla('GOL İNCELENİYOR')" style="background:#444; border:1px solid #FFD700; color:white;">⚽ GOL İNCELE</button>
-                    <button onclick="varYayinla('PENALTI KONTROLÜ')" style="background:#444; border:1px solid #FFD700; color:white;">⚠️ PENALTI</button>
-                    <button onclick="varYayinla('OFSAYT KONTROLÜ')" style="background:#444; border:1px solid #FFD700; color:white;">🚩 OFSAYT</button>
-                    <button onclick="varYayinla('KART İNCELEMESİ')" style="background:#444; border:1px solid #FFD700; color:white;">🟥 KIRMIZI KART</button>
-                </div>
-                <button onclick="varKapat()" class="btn-kirmizi">❌ VAR EKRANINI KAPAT</button>
-                <div id="varStatus" style="color:#aaa; font-size:11px; margin-top:5px;">Sistem Beklemede</div>
-            </div>
-
             <div class="panel full-width" style="border: 2px solid #3498db;">
                 <h3>📢 ALT BANT (GOL/KART YAZISI)</h3>
                 <div style="display:flex; gap:5px;">
@@ -133,9 +121,45 @@
                 </div>
             </div>
 
+
+            <div class="panel full-width" style="border: 2px solid #FFD700; background-color: #2c2c2c;">
+                <h3 style="color: #FFD700; margin:0 0 10px 0;">🖥️ VAR SİSTEMİ</h3>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 10px;">
+                    <button onclick="varYayinla('GOL İNCELENİYOR')" style="background:#444; border:1px solid #FFD700; color:white;">⚽ GOL İNCELE</button>
+                    <button onclick="varYayinla('PENALTI KONTROLÜ')" style="background:#444; border:1px solid #FFD700; color:white;">⚠️ PENALTI</button>
+                    <button onclick="varYayinla('OFSAYT KONTROLÜ')" style="background:#444; border:1px solid #FFD700; color:white;">🚩 OFSAYT</button>
+                    <button onclick="varYayinla('KART İNCELEMESİ')" style="background:#444; border:1px solid #FFD700; color:white;">🟥 KIRMIZI KART</button>
+                </div>
+                <button onclick="varKapat()" class="btn-kirmizi">❌ VAR EKRANINI KAPAT</button>
+                <div id="varStatus" style="color:#aaa; font-size:11px; margin-top:5px;">Sistem Beklemede</div>
+            </div>
+
+            <div class="panel full-width" style="border: 2px solid #e74c3c;">
+                <h3 style="color: #e74c3c;">🥅 PENALTI ATIŞLARI</h3>
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <button class="btn-mavi" onclick="penaltiAc()">Ekrana Ver</button>
+                    <button class="btn-gri" onclick="penaltiSifirla()">Sıfırla</button>
+                    <button class="btn-kirmizi" onclick="penaltiKapat()">Kapat</button>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div style="text-align:center; border-right:1px solid #444; padding-right:5px;">
+                        <h4 style="margin:5px 0;">EV SAHİBİ</h4>
+                        <div id="evPenaltiSkor" style="font-size:24px; color:#FFD700; margin-bottom:5px;">0</div>
+                        <button onclick="penaltiEkle('ev', 1)" style="background:#2ecc71; margin-bottom:5px;">⚽ GOL</button>
+                        <button onclick="penaltiEkle('ev', 0)" style="background:#e74c3c;">❌ KAÇTI</button>
+                    </div>
+                    <div style="text-align:center; padding-left:5px;">
+                        <h4 style="margin:5px 0;">DEPLASMAN</h4>
+                        <div id="depPenaltiSkor" style="font-size:24px; color:#FFD700; margin-bottom:5px;">0</div>
+                        <button onclick="penaltiEkle('dep', 1)" style="background:#2ecc71; margin-bottom:5px;">⚽ GOL</button>
+                        <button onclick="penaltiEkle('dep', 0)" style="background:#e74c3c;">❌ KAÇTI</button>
+                    </div>
+                </div>
+            </div>
+
+            
             <div class="panel full-width">
                 <button class="btn-turuncu" onclick="golSesiCal()">🔊 GOOOOL SESİ</button>
-                <audio id="audioPlayer" src="https://files.catbox.moe/kendi_dosyan.mp3"></audio>
             </div>
 
             <div class="panel full-width">
@@ -210,33 +234,87 @@
 
 
         // ------------------------------------------------------------------
-        // B. PUBNUB ENTEGRASYONU (VAR SİSTEMİ İÇİN - ESKİ USÜL)
+        // B. PUBNUB ENTEGRASYONU (VAR + PENALTI + GOL SESİ)
         // ------------------------------------------------------------------
         
-        // Bu kısım senin önceki sisteminle aynı, Overlay bozulmaz.
         const pubnub = new PubNub({
             publishKey: "pub-c-84a7bd29-50ba-405a-b10b-808f24c7150e",
             subscribeKey: "sub-c-477e7b00-d093-4262-8c88-f69b58ba69e5",
             uuid: "reji_control"
         });
 
+        // 1. VAR Sistemi Komutları
         window.varYayinla = function(sebep) {
             document.getElementById('varStatus').innerText = "YAYINDA: " + sebep;
             document.getElementById('varStatus').style.color = "#00ff00";
-            
-            pubnub.publish({
-                channel: "golden_league_kanal",
-                message: { komut: "VAR_AC", detay: sebep }
-            });
+            pubnub.publish({ channel: "golden_league_kanal", message: { komut: "VAR_AC", detay: sebep } });
         }
 
         window.varKapat = function() {
             document.getElementById('varStatus').innerText = "KAPATILDI";
             document.getElementById('varStatus').style.color = "#aaa";
+            pubnub.publish({ channel: "golden_league_kanal", message: { komut: "VAR_KAPAT" } });
+        }
 
+        // 2. GOL SESİ - SCOREBOARD'A PUBNUB ÜZERİNDEN KOMUT GÖNDER
+        window.golSesiCal = function() {
+            console.log("Gol sesi komutu gönderiliyor...");
+            pubnub.publish({ 
+                channel: "golden_league_kanal", 
+                message: { komut: "GOL_SESI" } 
+            }, function(status, response) {
+                if (status.error) {
+                    console.error("Gol sesi gönderme hatası:", status);
+                } else {
+                    console.log("Gol sesi komutu gönderildi:", response);
+                }
+            });
+        }
+
+        // 3. PENALTI Sistemi Komutları
+        let pEvSkor = 0;
+        let pDepSkor = 0;
+        let pEvDurum = []; 
+        let pDepDurum = [];
+
+        window.penaltiAc = function() {
+            let ev = document.getElementById("yeniEvSecim");
+            let dep = document.getElementById("yeniDepSecim");
+            let evAd = (ev.selectedIndex > 0) ? ev.options[ev.selectedIndex].text : "EV SAHİBİ";
+            let depAd = (dep.selectedIndex > 0) ? dep.options[dep.selectedIndex].text : "DEPLASMAN";
+            pubnub.publish({ channel: "golden_league_penalti", message: { islem: "AC", ev: evAd, dep: depAd } });
+            penaltiGuncelle();
+        }
+
+        window.penaltiKapat = function() {
+            pubnub.publish({ channel: "golden_league_penalti", message: { islem: "KAPAT" } });
+        }
+
+        window.penaltiSifirla = function() {
+            pEvSkor = 0; pDepSkor = 0;
+            pEvDurum = []; pDepDurum = [];
+            document.getElementById("evPenaltiSkor").innerText = 0;
+            document.getElementById("depPenaltiSkor").innerText = 0;
+            pubnub.publish({ channel: "golden_league_penalti", message: { islem: "SIFIRLA" } });
+        }
+
+        window.penaltiEkle = function(takim, sonuc) {
+            if(takim === 'ev') {
+                pEvDurum.push(sonuc);
+                if(sonuc === 1) pEvSkor++;
+                document.getElementById("evPenaltiSkor").innerText = pEvSkor;
+            } else {
+                pDepDurum.push(sonuc);
+                if(sonuc === 1) pDepSkor++;
+                document.getElementById("depPenaltiSkor").innerText = pDepSkor;
+            }
+            penaltiGuncelle();
+        }
+
+        function penaltiGuncelle() {
             pubnub.publish({
-                channel: "golden_league_kanal",
-                message: { komut: "VAR_KAPAT" }
+                channel: "golden_league_penalti",
+                message: { islem: "GUNCELLE", evSkor: pEvSkor, depSkor: pDepSkor, evDurum: pEvDurum, depDurum: pDepDurum }
             });
         }
 
@@ -254,13 +332,13 @@
         let mevcutMacAdi = "GoldenLeague_Mac";
         let matchStartTime = null;
 
-        // Başlangıç (window.onload yerine buraya alıyoruz çünkü module scope)
-        // Sayfa yüklendiğinde çalışacaklar Auth kontrolünün içine taşındı
-        // Ama manuel tetikleme için:
+        // Sayfa Yüklendiğinde
         let kayitli = localStorage.getItem("localMatchStart");
         if (kayitli && kayitli !== "null") { matchStartTime = new Date(kayitli); }
         let tvInput = document.getElementById("tvMesaj");
         if(tvInput && tvInput.value === "") { tvInput.value = VARSAYILAN_MESAJ; }
+        
+        // Event Listener'ları Manuel Ekliyoruz
         let evSecim = document.getElementById("yeniEvSecim");
         let depSecim = document.getElementById("yeniDepSecim");
         if(evSecim) evSecim.addEventListener("change", window.macAdiGuncelle);
@@ -383,8 +461,6 @@
           if(m.trim() === "") { m = VARSAYILAN_MESAJ; inputElement.value = m; }
           window.send("tvMesajGonder", "&mesaj=" + encodeURIComponent(m));
         }
-
-        window.golSesiCal = function() { var audio = document.getElementById("audioPlayer"); if(audio) audio.play(); }
 
         window.oyuncuListesiniGuncelle = function() {
           let takim = document.getElementById("takimSecimi").value; let oyuncuSelect = document.getElementById("oyuncuSecimi");
