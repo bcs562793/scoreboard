@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Golden League - Final Editor Pro v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<style>
+  /* --- GENEL AYARLAR --- */
+  :root {
+    --gold: #ffc107;
+    --gold-dark: #bfa117;
+    --glass: rgba(20, 20, 20, 0.85); 
+    --glass-border: rgba(255, 215, 0, 0.4);
+  }
+
+  body {
+    background-color: #121212;
+    color: white;
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* --- SOL PANEL (EDİTÖR) --- */
+  .sidebar {
+    width: 340px;
+    background: #181818;
+    border-right: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    box-shadow: 5px 0 20px rgba(0,0,0,0.5);
+    flex-shrink: 0;
+  }
+
+  .sidebar-header {
+    padding: 15px;
+    background: #202020;
+    border-bottom: 1px solid #333;
+    text-align: center;
+  }
+  .sidebar-header h2 { margin: 0; color: var(--gold); font-family: 'Oswald'; font-size: 1.5rem; }
+
+  .sidebar-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 15px;
+  }
+  .sidebar-content::-webkit-scrollbar { width: 8px; }
+  .sidebar-content::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+
+  .input-group { margin-bottom: 15px; border: 1px solid #333; padding: 10px; border-radius: 6px; background: #222; }
+  .input-group h4 { margin: 0 0 8px 0; color: var(--gold); font-size: 11px; text-transform: uppercase; border-bottom: 1px solid #444; padding-bottom: 4px; letter-spacing: 1px; }
+  
+  input[type="text"] { 
+    width: 100%; box-sizing: border-box; background: #111; 
+    border: 1px solid #444; color: #fff; padding: 8px; font-size: 12px; margin-bottom: 6px; border-radius: 4px;
+  }
+  input:focus { border-color: var(--gold); outline: none; background: #000; }
+
+  .file-upload {
+    background: #2a2a2a; padding: 10px; text-align: center; border-radius: 5px; cursor: pointer; border: 1px dashed #666;
+    margin-bottom: 10px; font-size: 12px; color: #fff; display: block; transition: 0.3s;
+  }
+  .file-upload:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* Range Slider (Opaklık Ayarı) */
+  .range-container {
+    padding: 10px; background: #222; border-radius: 5px; margin-bottom: 15px; border: 1px solid #333;
+  }
+  .range-label { font-size: 11px; color: #aaa; margin-bottom: 5px; display: flex; justify-content: space-between; }
+  input[type="range"] {
+    width: 100%; cursor: pointer; accent-color: var(--gold);
+  }
+
+  .btn-action {
+    background: linear-gradient(45deg, var(--gold), #e6a800); border: none; padding: 15px; width: 100%;
+    font-weight: bold; font-family: 'Oswald'; cursor: pointer; font-size: 16px;
+    color: #000; text-transform: uppercase;
+  }
+  .btn-action:hover { filter: brightness(1.1); }
+
+  /* --- SAĞ PANEL (CANVAS) --- */
+  .preview-area {
+    flex-grow: 1;
+    background: #0d0d0d;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* --- POSTER TASARIMI --- */
+  #poster {
+    width: 1080px;
+    height: 1350px;
+    background-color: #000;
+    /* background-image kaldırıldı, yerine img etiketi kullanılacak */
+    position: relative;
+    box-shadow: 0 0 50px rgba(0,0,0,0.8);
+    flex-shrink: 0;
+    overflow: hidden; /* Taşmaları gizle */
+  }
+
+  /* YENİ: Arka Plan Görseli Etiketi */
+  #bg-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* background-size: cover ile aynı işlevi görür */
+    z-index: 0; /* En altta */
+    display: none; /* Başlangıçta gizli */
+  }
+
+  .overlay {
+    position: absolute; top:0; left:0; width:100%; height:100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1; /* Görselin üzerinde */
+    transition: background 0.2s;
+  }
+
+  .content-layer {
+    position: relative; z-index: 2; /* En üstte */
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    padding: 40px; box-sizing: border-box;
+  }
+
+  /* HEADER */
+  .poster-header {
+    text-align: center; margin-bottom: 30px; border-bottom: 2px solid var(--gold); padding-bottom: 20px;
+  }
+  .ph-title { font-family: 'Oswald'; font-size: 90px; color: var(--gold); line-height: 1; letter-spacing: 5px; text-shadow: 0 0 30px rgba(255,215,0,0.3); }
+  .ph-sub { font-size: 26px; letter-spacing: 8px; text-transform: uppercase; color: #fff; margin-top: 10px; font-weight: 700; }
+
+  /* BRACKET YAPISI */
+  .bracket-container {
+    display: flex;
+    justify-content: space-between;
+    flex-grow: 1;
+    align-items: stretch;
+  }
+
+  .side-column {
+    width: 30%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+  }
+
+  .center-column {
+    width: 36%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0 20px;
+  }
+
+  /* EŞLEŞME BLOKLARI */
+  .match-group {
+    display: flex;
+    align-items: center; 
+    justify-content: space-between;
+    margin: 10px 0;
+    position: relative;
+  }
+  .match-group.left { flex-direction: row; }
+  .match-group.right { flex-direction: row-reverse; }
+
+  /* İLK TUR & ÇEYREK FİNAL */
+  .round-1-box { display: flex; flex-direction: column; gap: 30px; width: 60%; }
+  .round-2-box { width: 35%; display: flex; justify-content: center; position: relative; }
+
+  /* KART TASARIMI */
+  .card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    padding: 10px 15px;
+    border-radius: 6px;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    min-height: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .card.bye { border-left: 4px solid #28a745; }
+  .card.match { border-left: 4px solid var(--gold); }
+  
+  .team-name { font-size: 15px; font-weight: 800; text-transform: uppercase; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; text-shadow: 0 2px 4px rgba(0,0,0,1); }
+  .status { font-size: 9px; color: #ccc; letter-spacing: 1px; margin-bottom: 2px; }
+
+  .vs-badge {
+    position: absolute; right: -12px; top: 50%; transform: translateY(-50%);
+    background: #000; border: 1px solid var(--gold); color: var(--gold);
+    border-radius: 50%; width: 20px; height: 20px; font-size: 9px;
+    display: flex; align-items: center; justify-content: center; z-index: 5;
+  }
+  .match-group.right .vs-badge { right: auto; left: -12px; }
+
+  /* ÇİZGİLER */
+  .connector { position: absolute; top: 50%; width: 20px; height: 2px; background: #555; }
+  .bracket-fork { position: absolute; width: 15px; border: 2px solid #fff; z-index: 0; opacity: 0.6; }
+  
+  .left .bracket-fork {
+    right: -15px; top: 25%; bottom: 25%; height: auto;
+    border-left: none; border-top-right-radius: 10px; border-bottom-right-radius: 10px;
+  }
+  .right .bracket-fork {
+    left: -15px; top: 25%; bottom: 25%; height: auto;
+    border-right: none; border-top-left-radius: 10px; border-bottom-left-radius: 10px;
+  }
+
+  /* ORTA ALAN */
+  .sf-card { width: 100%; text-align: center; padding: 15px; margin: 20px 0; border: 1px solid var(--gold); background: rgba(0,0,0,0.8); }
+  .final-stage {
+    text-align: center;
+    background: radial-gradient(circle, rgba(255,215,0,0.2) 0%, rgba(0,0,0,0.6) 80%);
+    border: 3px solid var(--gold);
+    border-radius: 15px;
+    padding: 30px;
+    margin: 40px 0;
+    width: 100%;
+    backdrop-filter: blur(5px);
+  }
+  .trophy { font-size: 70px; display: block; margin-bottom: 10px; filter: drop-shadow(0 0 10px gold); }
+  .footer { position: absolute; bottom: 20px; width: 100%; text-align: center; color: #ddd; font-size: 14px; font-weight: bold; letter-spacing: 2px; left:0; text-shadow: 0 2px 4px rgba(0,0,0,1); }
+
+</style>
+</head>
+<body>
+
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>FİKSTÜR EDİTÖRÜ</h2>
+    </div>
+    <div class="sidebar-content">
+      
+      <label class="file-upload">
+        🖼️ Arka Plan Resmi Yükle
+        <input type="file" style="display: none;" onchange="loadBg(event)" accept="image/*">
+      </label>
+
+      <div class="range-container">
+        <div class="range-label"><span>Parlak</span> <span>Koyu</span></div>
+        <input type="range" id="opacity-slider" min="0" max="0.95" step="0.05" value="0.5" oninput="changeOpacity(this.value)">
+        <div style="font-size:10px; color:#666; text-align:center; margin-top:5px;">Siyah Katman Ayarı</div>
+      </div>
+
+      <div class="input-group">
+        <h4>SOL ÜST BLOK</h4>
+        <input type="text" id="i-l1" value="LİDER A" placeholder="Lider A (BAY)" oninput="sync()">
+        <input type="text" id="i-m1a" value="TAKIM 3" placeholder="Maç 1 - A" oninput="sync()">
+        <input type="text" id="i-m1b" value="TAKIM 14" placeholder="Maç 1 - B" oninput="sync()">
+        <hr style="border-color:#333; margin:5px 0;">
+        <input type="text" id="i-qf1-a" placeholder="ÇF 1 - Takım A (?)" oninput="sync()">
+        <input type="text" id="i-qf1-b" placeholder="ÇF 1 - Takım B (?)" oninput="sync()">
+      </div>
+
+      <div class="input-group">
+        <h4>SOL ALT BLOK</h4>
+        <input type="text" id="i-m2a" value="TAKIM 4" placeholder="Maç 2 - A" oninput="sync()">
+        <input type="text" id="i-m2b" value="TAKIM 13" placeholder="Maç 2 - B" oninput="sync()">
+        <input type="text" id="i-m3a" value="TAKIM 5" placeholder="Maç 3 - A" oninput="sync()">
+        <input type="text" id="i-m3b" value="TAKIM 12" placeholder="Maç 3 - B" oninput="sync()">
+        <hr style="border-color:#333; margin:5px 0;">
+        <input type="text" id="i-qf2-a" placeholder="ÇF 2 - Takım A (?)" oninput="sync()">
+        <input type="text" id="i-qf2-b" placeholder="ÇF 2 - Takım B (?)" oninput="sync()">
+      </div>
+
+      <div class="input-group">
+        <h4>SAĞ ÜST BLOK</h4>
+        <input type="text" id="i-m4a" value="TAKIM 6" placeholder="Maç 4 - A" oninput="sync()">
+        <input type="text" id="i-m4b" value="TAKIM 11" placeholder="Maç 4 - B" oninput="sync()">
+        <input type="text" id="i-m5a" value="TAKIM 7" placeholder="Maç 5 - A" oninput="sync()">
+        <input type="text" id="i-m5b" value="TAKIM 10" placeholder="Maç 5 - B" oninput="sync()">
+        <hr style="border-color:#333; margin:5px 0;">
+        <input type="text" id="i-qf3-a" placeholder="ÇF 3 - Takım A (?)" oninput="sync()">
+        <input type="text" id="i-qf3-b" placeholder="ÇF 3 - Takım B (?)" oninput="sync()">
+      </div>
+
+      <div class="input-group">
+        <h4>SAĞ ALT BLOK</h4>
+        <input type="text" id="i-m6a" value="TAKIM 8" placeholder="Maç 6 - A" oninput="sync()">
+        <input type="text" id="i-m6b" value="TAKIM 9" placeholder="Maç 6 - B" oninput="sync()">
+        <input type="text" id="i-l2" value="LİDER B" placeholder="Lider B (BAY)" oninput="sync()">
+        <hr style="border-color:#333; margin:5px 0;">
+        <input type="text" id="i-qf4-a" placeholder="ÇF 4 - Takım A (?)" oninput="sync()">
+        <input type="text" id="i-qf4-b" placeholder="ÇF 4 - Takım B (?)" oninput="sync()">
+      </div>
+
+      <div class="input-group">
+        <h4>FİNAL YOLU</h4>
+        <input type="text" id="i-sf1" placeholder="Yarı Finalist 1 (Sol)" oninput="sync()">
+        <input type="text" id="i-sf2" placeholder="Yarı Finalist 2 (Sağ)" oninput="sync()">
+        <input type="text" id="i-champ" placeholder="ŞAMPİYON TAKIM" style="border-color:var(--gold); color:var(--gold);" oninput="sync()">
+      </div>
+
+      <button class="btn-action" onclick="downloadImage()">💾 RESMİ İNDİR</button>
+    </div>
+  </div>
+
+  <div class="preview-area">
+    <div id="poster">
+      <img id="bg-image" src="" alt="Arka Plan">
+      
+      <div class="overlay" id="bg-overlay"></div>
+      <div class="content-layer">
+        
+        <div class="poster-header">
+          <div class="ph-title">GOLDEN LEAGUE</div>
+          <div class="ph-sub">GAZİANTEP ŞAMPİYONLUK YOLU</div>
+        </div>
+
+        <div class="bracket-container">
+          
+          <div class="side-column">
+            
+            <div class="match-group left">
+              <div class="round-1-box">
+                <div class="card bye">
+                  <div class="status">BAY GEÇTİ</div>
+                  <div class="team-name" id="o-l1">LİDER A</div>
+                </div>
+                <div class="card match">
+                  <div class="vs-badge">VS</div>
+                  <div class="team-name" id="o-m1a">TAKIM 3</div>
+                  <div style="border-top:1px solid #666; margin:2px 0;"></div>
+                  <div class="team-name" id="o-m1b">TAKIM 14</div>
+                </div>
+                <div class="bracket-fork"></div>
+              </div>
+              <div class="round-2-box">
+                <div class="card match" style="width:100%;">
+                  <div class="team-name" id="o-qf1-a">?</div>
+                  <div style="border-top:1px solid #666; margin:4px 0;"></div>
+                  <div class="team-name" id="o-qf1-b">?</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="match-group left">
+              <div class="round-1-box">
+                <div class="card match">
+                  <div class="vs-badge">VS</div>
+                  <div class="team-name" id="o-m2a">TAKIM 4</div>
+                  <div style="border-top:1px solid #666; margin:2px 0;"></div>
+                  <div class="team-name" id="o-m2b">TAKIM 13</div>
+                </div>
+                <div class="card match">
+                  <div class="vs-badge">VS</div>
+                  <div class="team-name" id="o-m3a">TAKIM 5</div>
+                  <div style="border-top:1px solid #666; margin:2px 0;"></div>
+                  <div class="team-name" id="o-m3b">TAKIM 12</div>
+                </div>
+                <div class="bracket-fork"></div>
+              </div>
+              <div class="round-2-box">
+                <div class="card match" style="width:100%;">
+                  <div class="team-name" id="o-qf2-a">?</div>
+                  <div style="border-top:1px solid #666; margin:4px 0;"></div>
+                  <div class="team-name" id="o-qf2-b">?</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="center-column">
+             <div class="sf-card">
+               <div class="status" style="color:var(--gold);">YARI FİNAL A</div>
+               <div class="team-name" style="font-size:22px;" id="o-sf1">?</div>
+             </div>
+
+             <div class="final-stage">
+               <div class="trophy">🏆</div>
+               <div class="status" style="font-size:14px; color:#fff;">GAZİANTEP ŞAMPİYONU</div>
+               <div class="team-name" style="font-size:40px; color:var(--gold); margin-top:10px;" id="o-champ">?</div>
+             </div>
+
+             <div class="sf-card">
+               <div class="status" style="color:var(--gold);">YARI FİNAL B</div>
+               <div class="team-name" style="font-size:22px;" id="o-sf2">?</div>
+             </div>
+          </div>
+
+          <div class="side-column">
+            <div class="match-group right">
+              <div class="round-1-box">
+                <div class="card match">
+                  <div class="vs-badge">VS</div>
+                  <div class="team-name" id="o-m4a">TAKIM 6</div>
+                  <div style="border-top:1px solid #666; margin:2px 0;"></div>
+                  <div class="team-name" id="o-m4b">TAKIM 11</div>
+                </div>
+                <div class="card match">
+                  <div class="vs-badge">VS</div>
+                  <div class="team-name" id="o-m5a">TAKIM 7</div>
+                  <div style="border-top:1px solid #666; margin:2px 0;"></div>
+                  <div class="team-name" id="o-m5b">TAKIM 10</div>
+                </div>
+                <div class="bracket-fork"></div>
+              </div>
+              <div class="round-2-box">
+                <div class="card match" style="width:100%;">
+                  <div class="team-name" id="o-qf3-a">?</div>
+                  <div style="border-top:1px solid #666; margin:4px 0;"></div>
+                  <div class="team-name" id="o-qf3-b">?</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="match-group right">
+              <div class="round-1-box">
+                <div class="card match">
+                  <div class="vs-badge">VS</div>
+                  <div class="team-name" id="o-m6a">TAKIM 8</div>
+                  <div style="border-top:1px solid #666; margin:2px 0;"></div>
+                  <div class="team-name" id="o-m6b">TAKIM 9</div>
+                </div>
+                <div class="card bye">
+                  <div class="status">BAY GEÇTİ</div>
+                  <div class="team-name" id="o-l2">LİDER B</div>
+                </div>
+                <div class="bracket-fork"></div>
+              </div>
+              <div class="round-2-box">
+                <div class="card match" style="width:100%;">
+                  <div class="team-name" id="o-qf4-a">?</div>
+                  <div style="border-top:1px solid #666; margin:4px 0;"></div>
+                  <div class="team-name" id="o-qf4-b">?</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="footer">#GoldenLeagueGaziantep | Resmi Turnuva Ağacı</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // Scale Logic
+  function resize() {
+    const poster = document.getElementById('poster');
+    const container = document.querySelector('.preview-area');
+    const scale = Math.min(container.clientWidth / 1120, container.clientHeight / 1400);
+    poster.style.transform = `scale(${scale})`;
+  }
+  window.addEventListener('resize', resize);
+  setTimeout(resize, 100);
+
+  // GÜNCELLENMİŞ Arka Plan Yükleme Fonksiyonu
+  function loadBg(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        // img etiketinin kaynağını ayarla ve görünür yap
+        const bgImage = document.getElementById('bg-image');
+        bgImage.src = e.target.result;
+        bgImage.style.display = 'block';
+        // Posterin kendi arka planını temizle (gerekirse)
+        document.getElementById('poster').style.backgroundImage = 'none';
+      }
+      reader.readAsDataURL(file);
+    }
+  }
+
+  // Opaklık Ayarı
+  function changeOpacity(val) {
+    document.getElementById('bg-overlay').style.backgroundColor = `rgba(0, 0, 0, ${val})`;
+  }
+
+  // Veri Senkronizasyonu
+  function sync() {
+    const ids = [
+      'l1', 'm1a', 'm1b', 'qf1-a', 'qf1-b',
+      'm2a', 'm2b', 'm3a', 'm3b', 'qf2-a', 'qf2-b',
+      'm4a', 'm4b', 'm5a', 'm5b', 'qf3-a', 'qf3-b',
+      'm6a', 'm6b', 'l2', 'qf4-a', 'qf4-b',
+      'sf1', 'sf2', 'champ'
+    ];
+
+    ids.forEach(id => {
+      let val = document.getElementById('i-' + id).value;
+      let target = document.getElementById('o-' + id);
+      if(val) target.innerText = val.toUpperCase();
+      else {
+        if(id.includes('qf') || id.includes('sf') || id.includes('champ')) target.innerText = "?";
+      }
+    });
+  }
+  
+  sync();
+
+  function downloadImage() {
+    const poster = document.getElementById('poster');
+    const originalTransform = poster.style.transform;
+    poster.style.transform = "scale(1)";
+
+    html2canvas(poster, {
+      scale: 1,
+      useCORS: true,
+      backgroundColor: null 
+    }).then(canvas => {
+      const link = document.createElement('a');
+      link.download = 'Golden_League_Fikstur.jpg';
+      link.href = canvas.toDataURL('image/jpeg', 0.95);
+      link.click();
+      poster.style.transform = originalTransform;
+    });
+  }
+</script>
+
+</body>
+</html>
